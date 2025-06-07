@@ -29,8 +29,8 @@ export default function Sidebar() {
 
     const { isAdmin, isSales, isAuthenticated } = useRole();
 
-    // If not authenticated and not on login page, don't render sidebar
-    if (!isAuthenticated && pathname !== '/auth/login') {
+    // Hide sidebar on login page or when user is not authenticated
+    if (!isAuthenticated || pathname === '/auth/login') {
         return null;
     }
 
@@ -39,7 +39,7 @@ export default function Sidebar() {
             name: 'Dashboard',
             icon: <LayoutDashboard size={20} />,
             path: '/dashboard',
-            roles: ['admin', 'sales'], // Available for both admin and sales
+            roles: ['admin', 'sales'],
         },
         {
             name: 'Customer Enquiry',
@@ -57,19 +57,19 @@ export default function Sidebar() {
             name: 'Invoices',
             icon: <Receipt size={20} />,
             path: '/all-invoices',
-            roles: ['admin'], // Only for admin
+            roles: ['admin'],
         },
         {
             name: 'Create Invoice',
             icon: <FileText size={20} />,
             path: '/invoice-form',
-            roles: ['admin'], // Only for admin
+            roles: ['admin'],
         },
         {
             name: 'Team',
             icon: <Users size={20} />,
             path: '/team-management',
-            roles: ['admin'], // Only for admin
+            roles: ['admin'],
         },
         {
             name: 'New Enquiry',
@@ -93,11 +93,6 @@ export default function Sidebar() {
         }
     };
 
-    // Don't render sidebar on login page
-    if (pathname === '/auth/login') {
-        return null;
-    }
-
     return (
         <div className={cn(
             "relative h-screen bg-gray-900 text-white flex flex-col shadow-xl transition-all duration-300",
@@ -119,11 +114,11 @@ export default function Sidebar() {
                 <div className="flex items-center gap-2">
                     <Avatar className="h-8 w-8">
                         <AvatarImage src="/logo.png" alt="Logo" />
-                        <AvatarFallback>CRM</AvatarFallback>
+                        <AvatarFallback>MI</AvatarFallback>
                     </Avatar>
                     {!isCollapsed && (
                         <div>
-                            <h1 className="text-sm font-semibold">CRM System</h1>
+                            <h1 className="text-sm font-semibold">Mayuri International</h1>
                         </div>
                     )}
                 </div>
