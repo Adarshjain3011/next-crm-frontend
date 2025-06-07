@@ -1,18 +1,22 @@
 'use client'
 
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-
 import { loginHandler } from "@/lib/api";
 import toast from "react-hot-toast";
-
 import { handleAxiosError } from "@/lib/handleAxiosError";
+import { useDispatch } from "react-redux";
+import { useRouter } from "next/navigation";
+import { setUserData } from "@/app/store/slice/userSlice";
 
 export default function Login() {
+  const dispatch = useDispatch();
+  const router = useRouter();
+  
   const form = useForm({
     defaultValues: {
       email: "",
@@ -21,21 +25,15 @@ export default function Login() {
   });
 
   const onSubmit = async(values) => {
-    console.log("Login Data:", values);
-    
-    try{
-
-        const result = await loginHandler(values);
-
-        toast.success("user logged in success");
-
-
-    }catch(error){
-
-        console.log("handle error at the login page", error);
-
-        handleAxiosError(error);
-
+    try {
+      const userData = await loginHandler(values);
+      console.log("Login response:", userData);
+      dispatch(setUserData(userData));
+      toast.success("Login successful");
+      router.push('/client-dashboard');
+    } catch (error) {
+      console.error("Login failed:", error);
+      handleAxiosError(error);
     }
   };
 
@@ -87,3 +85,5 @@ export default function Login() {
     </div>
   );
 }
+
+

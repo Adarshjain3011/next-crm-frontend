@@ -6,9 +6,6 @@ export const fetchUserData = createAsyncThunk(
   'user/fetchUserData',
   async (_, { rejectWithValue }) => {
     try {
-
-        console.log("user slice ke andar ",)
-
       const response = await fetch('/api/user/profile');
       if (!response.ok) throw new Error('Failed to fetch user data');
       return await response.json();
@@ -35,6 +32,11 @@ const userSlice = createSlice({
     },
     setLoading: (state, action) => {
       state.loading = action.payload;
+    },
+    setUserData: (state, action) => {
+      state.data = action.payload;
+      state.isAuthenticated = true;
+      state.error = null;
     }
   },
   extraReducers: (builder) => {
@@ -57,6 +59,6 @@ const userSlice = createSlice({
   }
 });
 
-export const { clearUser, setLoading } = userSlice.actions;
+export const { clearUser, setLoading, setUserData } = userSlice.actions;
 export default userSlice.reducer;
 

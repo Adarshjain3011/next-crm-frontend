@@ -3,6 +3,8 @@ import "./globals.css";
 // app/layout.js
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+// import ReduxProvider from "./providers/ReduxProvider";
+
 import ReduxProvider from "./providers/ReduxProvider";
 
 import { Toaster } from "react-hot-toast";

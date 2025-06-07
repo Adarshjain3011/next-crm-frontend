@@ -49,8 +49,17 @@ import { clearAllMembersData } from '../../store/slice/membersSlice';
 
 import { debounce } from 'lodash';
 
+import RoleGuard from '@/components/auth/RoleGuard';
+
+import { useRole } from '@/app/hooks/useRole';
+
+import { user_role } from '@/lib/data';
+
 
 export default function TeamManagement() {
+
+
+  const { isAdmin } = useRole();
 
   const [globalFilter, setGlobalFilter] = useState('');
 
@@ -70,7 +79,7 @@ export default function TeamManagement() {
         console.log("result is ", result);
 
       }
-      else{
+      else {
 
         toast.success("password updated sucessfully");
 
@@ -220,7 +229,7 @@ export default function TeamManagement() {
     },
   ];
 
-  
+
 
   const table = useReactTable({
     data: membersData,
@@ -273,75 +282,80 @@ export default function TeamManagement() {
 
   return (
 
+    <RoleGuard allowedRoles={[user_role.admin]}>
 
-    <div className="p-6">
+      <div className="p-6">
 
-      <h2 className="text-xl font-bold mb-4">Team Members</h2>
+        <h2 className="text-xl font-bold mb-4">Team Members</h2>
 
-      <div className='flex justify-between items-center'>
+        <div className='flex justify-between items-center'>
 
-        <div className="mb-4">
-          <Input
-            placeholder="Search..."
-            value={globalFilter}
-            onChange={(e) => setGlobalFilter(e.target.value)}
-            className="w-64"
-          />
+          <div className="mb-4">
+            <Input
+              placeholder="Search..."
+              value={globalFilter}
+              onChange={(e) => setGlobalFilter(e.target.value)}
+              className="w-64"
+            />
+          </div>
+
+          <div>
+
+            <Button onClick={() => setAddNewMemberModal(true)}>Add New Member </Button>
+
+          </div>
+
         </div>
 
-        <div>
 
-          <Button onClick={() => setAddNewMemberModal(true)}>Add New Member </Button>
-
-        </div>
-
-      </div>
-
-
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead key={header.id}>
-                  {flexRender(
-                    header.column.columnDef.header,
-                    header.getContext()
-                  )}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-
-        {
-
-          membersData && <TableBody>
-            {table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+                  </TableHead>
                 ))}
               </TableRow>
             ))}
-          </TableBody>
+          </TableHeader>
+
+          {
+
+            membersData && <TableBody>
+              {table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          }
+
+        </Table>
+
+        {
+
+          addNewMemberModal && <AddNewMember
+
+            setAddNewMemberModal={setAddNewMemberModal}
+
+          />
+
         }
 
-      </Table>
+      </div>
 
-      {
-
-        addNewMemberModal && <AddNewMember
-
-          setAddNewMemberModal={setAddNewMemberModal}
-
-        />
-
-      }
-
-    </div>
+    </RoleGuard>
   );
 }
+
+
 

@@ -25,63 +25,6 @@ import { fetchAllSalesPerson, fetchAllUserQueries, fetchUserQueries, assignSales
 import { cutomer_orders_label_data } from "../../../lib/data";
 
 
-export const customer_orders_dummy_data = [
-    {
-        "orderId": "ORD12345",
-        "clientName": "Acme Corp",
-        "location": "New York, NY",
-        "phoneNo": "123-456-7890",
-        "productDescription": "High-performance industrial pump",
-        "vendors": "PumpCo Ltd.",
-        "quoteVersion": "v2.1",
-        "quoteValue": 12500,
-        "gSTvalue": 1875,
-        "transportation": 500,
-        "installation": 1200,
-        "totalOrderValue": 16075,
-        "salesPerson": "John Doe",
-        "deliveryDate": "2025-06-15",
-        "deliveryStatus": "In Transit"
-    },
-    {
-        "orderId": "ORD12346",
-        "clientName": "Beta Industries",
-        "location": "San Francisco, CA",
-        "phoneNo": "123-456-7890",
-        "productDescription": "Custom conveyor belt system",
-        "vendors": "ConveyX",
-        "quoteVersion": "v1.0",
-        "quoteValue": 22000,
-        "gSTvalue": 3300,
-        "transportation": 800,
-        "installation": 1500,
-        "totalOrderValue": 27600,
-        "salesPerson": "Alice Smith",
-        "deliveryDate": "2025-07-01",
-        "deliveryStatus": "Pending"
-    },
-    {
-        "orderId": "ORD12347",
-        "clientName": "Gamma Solutions",
-        "location": "Chicago, IL",
-        "phoneNo": "123-456-7890",
-        "productDescription": "Automated packaging machine",
-        "vendors": "PackTech Inc.",
-        "quoteVersion": "v3.3",
-        "quoteValue": 18500,
-        "gSTvalue": 2775,
-        "transportation": 600,
-        "installation": 1100,
-        "totalOrderValue": 22975,
-        "salesPerson": "Michael Lee",
-        "deliveryDate": "2025-06-20",
-        "deliveryStatus": "Delivered"
-    }
-];
-
-
-
-
 export default function CustomersOrderPage() {
 
     const router = useRouter();
@@ -111,7 +54,7 @@ export default function CustomersOrderPage() {
                 ? new Date(client.date).toLocaleDateString() ===
                 new Date(filters.date).toLocaleDateString()
                 : true;
-            return  nameMatch && phoneMatch && statusMatch && dateMatch;
+            return nameMatch && phoneMatch && statusMatch && dateMatch;
         });
         setFilteredClients(updated);
     }, [filters, clients]);
@@ -152,46 +95,6 @@ export default function CustomersOrderPage() {
 
         }
     }
-
-
-    // useEffect(() => {
-
-    //     async function fetchUserQueries() {
-
-    //         try {
-
-    //             const res = await fetchAllUserQueries();
-
-    //             setClients(res);
-
-    //         } catch (error) {
-
-    //             console.log("error is ", error);
-
-    //         }
-    //     }
-
-    //     async function fetchSalesPerson() {
-
-    //         try {
-
-
-    //             const result = await fetchAllSalesPerson();
-
-    //             setSalesUsers(result);
-
-    //         } catch (error) {
-
-    //             console.log("error is ", error);
-
-    //         }
-    //     }
-
-
-    //     fetchUserQueries();
-    //     fetchSalesPerson();
-
-    // }, []);
 
 
     console.log("filtered client are", filteredClients);

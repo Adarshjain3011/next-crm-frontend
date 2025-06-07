@@ -18,7 +18,8 @@ const enquerySlice = createSlice({
 
             state.data = action.payload;
 
-        }
+        },
+
     }
 })
 

@@ -12,10 +12,16 @@ import { createNewClientEnquery } from "@/lib/api";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 
+import { user_role } from "@/lib/data";
+import RoleGuard from "@/components/auth/RoleGuard";
+
+import { useRole } from "@/app/hooks/useRole";
+
 export default function createNewEnquery() {
 
+    const { isAdmin, isSales } = useRole();
 
-    const { register, handleSubmit, formState: { errors } ,reset} = useForm();
+    const { register, handleSubmit, formState: { errors }, reset } = useForm();
 
     // name, companyName, phone, email, address, requirement, sourceWebsite, sourcePlatform
 
@@ -44,190 +50,194 @@ export default function createNewEnquery() {
 
     return (
 
-        <div className="w-full min-h-screen p-4 max-h-4xl overflow-y-scroll">
+        <RoleGuard allowedRoles={[user_role.admin,user_role.sales]}>
 
-            <h1 className="text-center">Add New Enquery </h1>
+            <div className="w-full min-h-screen p-4 max-h-4xl overflow-y-scroll">
 
-            <form onSubmit={handleSubmit(formSubmitHandler)} className="relative max-w-4xl mx-auto flex flex-col gap-4">
+                <h1 className="text-center">Add New Enquery </h1>
 
-                {/* name */}
+                <form onSubmit={handleSubmit(formSubmitHandler)} className="relative max-w-4xl mx-auto flex flex-col gap-4">
 
-                <div className="flex flex-col gap-2">
+                    {/* name */}
 
-                    <Label>Name</Label>
+                    <div className="flex flex-col gap-2">
 
-                    <Input
+                        <Label>Name</Label>
 
-                        type="text"
-                        placeholder=" Name is required"
-                        {...register("name", { required: " Name is required" })}
+                        <Input
 
-                    />
+                            type="text"
+                            placeholder=" Name is required"
+                            {...register("name", { required: " Name is required" })}
 
-                    {
+                        />
 
-                        errors.name && <p className="text-red-500 h-fit">{errors.name.message}</p>
-                    }
+                        {
 
-                </div>
+                            errors.name && <p className="text-red-500 h-fit">{errors.name.message}</p>
+                        }
 
-                <div className="flex flex-col gap-2">
+                    </div>
 
-                    <Label>Company Name</Label>
+                    <div className="flex flex-col gap-2">
 
-                    <Input
+                        <Label>Company Name</Label>
 
-                        type="text"
-                        placeholder="Enter Company Name"
-                        {...register("companyName", { required: "Company Name is required" })}
+                        <Input
 
-                    />
-                    {
+                            type="text"
+                            placeholder="Enter Company Name"
+                            {...register("companyName", { required: "Company Name is required" })}
 
-                        errors.companyName && <p className="text-red-500">{errors.companyName.message}</p>
-                    }
+                        />
+                        {
 
-                </div>
+                            errors.companyName && <p className="text-red-500">{errors.companyName.message}</p>
+                        }
 
-                {/* email */}
+                    </div>
 
-                <div className="flex flex-col gap-2">
+                    {/* email */}
 
-                    <Label>Email</Label>
+                    <div className="flex flex-col gap-2">
 
-                    <Input
+                        <Label>Email</Label>
 
-                        type="text"
-                        placeholder="Enter email"
-                        {...register("email",)}
+                        <Input
 
-                    />
+                            type="text"
+                            placeholder="Enter email"
+                            {...register("email",)}
 
-                </div>
+                        />
 
-                {/* phoneNo */}
+                    </div>
 
-                <div className="flex flex-col gap-2">
+                    {/* phoneNo */}
 
-                    <Label>phoneNo</Label>
+                    <div className="flex flex-col gap-2">
 
-                    <Input
+                        <Label>phoneNo</Label>
 
-                        type="text"
-                        placeholder="Enter phoneNo"
-                        {...register("phone", { required: "Phone No is required" })}
+                        <Input
 
-                    />
-                    {
+                            type="text"
+                            placeholder="Enter phoneNo"
+                            {...register("phone", { required: "Phone No is required" })}
 
-                        errors.phone && <p className="text-red-500">{errors.phone.message}</p>
-                    }
+                        />
+                        {
 
+                            errors.phone && <p className="text-red-500">{errors.phone.message}</p>
+                        }
 
-                </div>
 
-                {/* address */}
+                    </div>
 
-                <div className="flex flex-col gap-2">
+                    {/* address */}
 
-                    <Label>Address</Label>
+                    <div className="flex flex-col gap-2">
 
-                    <Input
+                        <Label>Address</Label>
 
-                        type="text"
-                        placeholder="Enter Address"
-                        {...register("address", { required: "Phone No is required" })}
+                        <Input
 
-                    />
-                    {
+                            type="text"
+                            placeholder="Enter Address"
+                            {...register("address", { required: "Phone No is required" })}
 
-                        errors.address && <p className="teaxt-red-500">{errors.address.message}</p>
-                    }
+                        />
+                        {
 
+                            errors.address && <p className="teaxt-red-500">{errors.address.message}</p>
+                        }
 
-                </div>
 
+                    </div>
 
 
-                <div className="flex flex-col gap-2">
 
-                    <Label>Date</Label>
+                    <div className="flex flex-col gap-2">
 
-                    <Input
+                        <Label>Date</Label>
 
-                        type="date"
-                        placeholder="Enter date"
-                        {...register("date", { required: "client enquery date is required" })}
+                        <Input
 
-                    />
+                            type="date"
+                            placeholder="Enter date"
+                            {...register("date", { required: "client enquery date is required" })}
 
-                    {
+                        />
 
-                        errors.date && <p className="text-red-500">{errors.date.message}</p>
-                    }
+                        {
 
-                </div>
+                            errors.date && <p className="text-red-500">{errors.date.message}</p>
+                        }
 
-                {/* requirement */}
+                    </div>
 
+                    {/* requirement */}
 
-                <div className="flex flex-col gap-2">
 
-                    <Label>Requirement</Label>
+                    <div className="flex flex-col gap-2">
 
-                    <Input
+                        <Label>Requirement</Label>
 
-                        type="text"
-                        placeholder="Enter Requirement"
-                        {...register("requirement", { required: "requirement is required" })}
+                        <Input
 
-                    />
+                            type="text"
+                            placeholder="Enter Requirement"
+                            {...register("requirement", { required: "requirement is required" })}
 
-                    {
+                        />
 
-                        errors.requirement && <p className="text-red-500">{errors.requirement.message}</p>
-                    }
+                        {
 
-                </div>
+                            errors.requirement && <p className="text-red-500">{errors.requirement.message}</p>
+                        }
 
+                    </div>
 
-                {/* sourcePlatform */}
 
-                <div className="flex flex-col gap-2">
+                    {/* sourcePlatform */}
 
-                    <Label>Source Platform</Label>
+                    <div className="flex flex-col gap-2">
 
-                    <Input
+                        <Label>Source Platform</Label>
 
-                        type="text"
-                        placeholder="Enter Source Platform"
-                        {...register("sourcePlatform", { required: "source Platform is required" })}
+                        <Input
 
-                    />
+                            type="text"
+                            placeholder="Enter Source Platform"
+                            {...register("sourcePlatform", { required: "source Platform is required" })}
 
-                </div>
+                        />
 
-                {/* sourceWebsite */}
+                    </div>
 
-                <div className="flex flex-col gap-2">
+                    {/* sourceWebsite */}
 
-                    <Label>Source Website</Label>
+                    <div className="flex flex-col gap-2">
 
-                    <Input
+                        <Label>Source Website</Label>
 
-                        type="text"
-                        placeholder="Enter Source Website"
-                        {...register("sourceWebsite",)}
+                        <Input
 
-                    />
+                            type="text"
+                            placeholder="Enter Source Website"
+                            {...register("sourceWebsite",)}
 
-                </div>
+                        />
 
-                <Button type="submit">Add Enquery</Button>
+                    </div>
 
-            </form>
+                    <Button type="submit">Add Enquery</Button>
 
-        </div>
+                </form>
+
+            </div>
+
+        </RoleGuard>
 
     )
 }

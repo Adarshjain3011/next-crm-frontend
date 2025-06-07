@@ -553,6 +553,9 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
                           </>
                         )}
                         {/* Vendor Fields */}
+
+                        {/* vendor name */}
+
                         <td className="border px-3 py-2 min-w-xs">
                           {isEditing ? (
                             <select
@@ -572,6 +575,9 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
                             getVendorNameById(vendor.vendorId)
                           )}
                         </td>
+
+                        {/* vendor description */}
+
                         <td className="border px-3 py-2 relative min-w-xs">
                           {isEditing ? (
                             <input
@@ -587,6 +593,9 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
                             vendor.description
                           )}
                         </td>
+
+                        {/* quantity */}
+
                         <td className="border px-3 py-2 min-w-[150px]">
                           {isEditing ? (
                             <input
@@ -603,6 +612,9 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
                             vendor.quantity
                           )}
                         </td>
+
+                        {/* cost per unit */}
+
                         <td className="border px-3 py-2 min-w-[150px]">
                           {isEditing ? (
                             <input
@@ -619,6 +631,9 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
                             `₹${vendor.costPerUnit}`
                           )}
                         </td>
+
+                        {/* advance */}
+
                         <td className="border px-3 py-2 min-w-[150px]">
                           {isEditing ? (
                             <input
@@ -634,6 +649,9 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
                             `₹${vendor.advance}`
                           )}
                         </td>
+
+                        {/* delivery date  */}
+
                         <td className="border px-3 py-2 min-w-[150px]">
                           {isEditing ? (
                             <input
@@ -652,7 +670,7 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
 
                         {/* vendor delivery  status  */}
 
-                        <td className="border px-3 py-2 min-w-xs">
+                        <td className="border px-3 py-2 min-w-[150px]">
                           {isEditing ? (
                             <select
                               name="vendordeliveryStatus"
@@ -673,6 +691,8 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
 
                         </td>
 
+                        
+
                         <td className="border px-3 py-2 flex gap-3">
                           {isEditing ? (
                             <Button onClick={() => handleSaveVendorChangesAtQuotes(quoteIdx, itemIdx, vendorIdx)}>Save</Button>
@@ -683,6 +703,7 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
                             Delete
                           </Button>
                         </td>
+
                         {vendorIdx === 0 && (
                           <td className="border px-3 py-2" rowSpan={item.vendors.length}>
                             <Button onClick={() => addNewVendorAtQuotes(quoteIdx, itemIdx)}>Add New Vendor</Button>

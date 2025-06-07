@@ -1,7 +1,7 @@
 
 'use client'
 
-import { addNewFollowUpHandler } from "@/lib/api";
+import { addNewFollowUpHandler, updateFollowUpStatus } from "@/lib/api";
 import { useState, } from "react";
 
 import React from "react";
@@ -20,10 +20,14 @@ import { followUpTableHeaders } from "@/lib/data";
 import { FaSave } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 
+import { handleAxiosError } from "@/lib/handleAxiosError";
+
 export const FollowUpCompo = ({ client, setClient }) => {
 
     const [activeFollowUpId, setActiveFollowUpId] = useState(null);
     const [addNewFollowUpModal, setAddNewFollowUpModal] = useState(false);
+
+    // const [followUpStatusValue,setFollowUpStatusValue] = useState(clie);
 
     const followUpInputRef = useRef();
 
@@ -50,7 +54,7 @@ export const FollowUpCompo = ({ client, setClient }) => {
 
             console.log("error is", error);
 
-            toast.error(error.message);
+            handleAxiosError(error);
 
         }
 
@@ -74,7 +78,6 @@ export const FollowUpCompo = ({ client, setClient }) => {
             data.message = followUpInputRef.current.value;
             data.enqueryId = client._id;
             data.followUpId = activeFollowUpId;
-            data.respondedBy = "681ef249f63be45573fdbadc";
 
             console.log("final data is ", data);
 
@@ -113,10 +116,51 @@ export const FollowUpCompo = ({ client, setClient }) => {
 
             console.log("error is ", error);
 
-            toast.error(error.message);
+            handleAxiosError(error);
 
         }
     }
+
+
+
+    const updateFollowUpStatusHandler = async (event,followUpId) => {
+
+        try {
+
+            const { value } = event.target;
+
+            if(value === ""){
+
+                return ;
+
+            }
+
+            let data = {};
+
+            data.enqueryId = client._id;
+            data.followUpId = followUpId;
+
+            data.status = value;
+
+            console.log("data is ",data);
+
+            let result = await updateFollowUpStatus(data);
+
+            setClient(result);
+
+            toast.success("follow up status updated successfully");
+            
+
+        } catch (error) {
+
+            console.log(error);
+
+            handleAxiosError(error);
+
+        }
+    }
+
+    // {followUp.done ? "Done" : "Pending"}
 
     return (
 
@@ -155,8 +199,17 @@ export const FollowUpCompo = ({ client, setClient }) => {
                                             {new Date(followUp.followUpDate).toLocaleDateString()}
                                         </td>
                                         <td className="border px-3 py-2">{followUp.followUpNote}</td>
+                                        <td className="border px-3 py-2">{followUp?.noteAddByUser?.name || "temp"}</td>
                                         <td className="border px-3 py-2">
-                                            {followUp.done ? "Done" : "Pending"}
+
+                                            <select value={followUp.done} className="px-4 py-2" onChange={(event) => updateFollowUpStatusHandler(event,followUp._id)}>
+
+                                                <option value="">Select status</option>
+                                                <option value={true}>Done</option>
+                                                <option value={false}>Pending</option>
+
+                                            </select>
+
                                         </td>
 
                                         {/* Response area */}
@@ -185,9 +238,9 @@ export const FollowUpCompo = ({ client, setClient }) => {
                                                     </div>
                                                 </div>
                                             ) : (
-                                                <Button onClick={() =>{
+                                                <Button onClick={() => {
 
-                                                    console.log("follow up id is ",followUp._id);
+                                                    console.log("follow up id is ", followUp._id);
                                                     setActiveFollowUpId(followUp._id);
                                                 }}>
                                                     Add Response
@@ -201,7 +254,7 @@ export const FollowUpCompo = ({ client, setClient }) => {
                                     {/* Response Rows */}
                                     {followUp.responses?.map((resp, ridx) => (
                                         <tr key={`${followUp._id}-${ridx}`} className="border-b bg-gray-50">
-                                            <td className="border px-3 py-1" colSpan={3}></td>
+                                            <td className="border px-3 py-1" colSpan={4}></td>
                                             <td className="border px-3 py-1">{resp.message}</td>
                                             <td className="border px-3 py-1">
                                                 {resp.respondedBy?.name || "N/A"}

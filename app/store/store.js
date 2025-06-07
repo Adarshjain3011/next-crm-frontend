@@ -17,6 +17,8 @@ import enquerySlice from "./slice/enquerySlice";
 import salesPersonData from "./slice/salesPersonData";
 import quoteSlice from "./slice/quoteSlice";
 import membersSlice from "./slice/membersSlice";
+import invoiceSlice from "./slice/invoiceSlice";
+import userSlice from "./slice/userSlice";
 
 // Create a transform that adds timestamp to the state
 const expireTransform = createTransform(
@@ -39,14 +41,16 @@ const expireTransform = createTransform(
     return stateWithoutTimestamp;
   },
   // define which reducers this transform runs on
-  { whitelist: ['enquery', 'salesPerson', 'quote', 'members'] }
+  { whitelist: ['enquery', 'salesPerson', 'quote', 'members', 'invoice', 'user'] }
 );
 
 const rootReducer = combineReducers({
   enquery: enquerySlice,
   salesPerson: salesPersonData,
   quote: quoteSlice,
-  members: membersSlice
+  members: membersSlice,
+  invoice: invoiceSlice,
+  user: userSlice
 });
 
 const persistConfig = {

@@ -83,7 +83,7 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
                     subtotal: 0,
                 }
             ],
-            taxPercent: '18',
+            taxPercent: 0,
             transport: 0,
             installation: 0,
             totalAmount: 0,
@@ -297,7 +297,7 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
                         subtotal: 0,
                     }
                 ],
-                taxPercent: '18',
+                taxPercent: 0,
                 transport: 0,
                 installation: 0,
                 totalAmount: 0,
@@ -311,7 +311,7 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
                 reset({
                     version: found.version,
                     items: found.items || [],
-                    taxPercent: found.taxPercent || '18',
+                    taxPercent: found.taxPercent || 0,
                     transport: found.transport || 0,
                     installation: found.installation || 0,
                     totalAmount: found.totalAmount || 0,
