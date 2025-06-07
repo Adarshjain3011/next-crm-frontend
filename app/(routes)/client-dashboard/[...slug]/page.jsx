@@ -8,8 +8,6 @@ import { Button } from '@/components/ui/button';
 import { TiEdit } from "react-icons/ti";
 import { MdAddBusiness, MdDeleteForever, MdSave } from "react-icons/md";
 
-import AddNewFollowUp from '@/components/client/AddNewFollowUp';
-
 import { Input } from '@/components/ui/input';
 
 import { useQueryClient, useQuery } from '@tanstack/react-query';

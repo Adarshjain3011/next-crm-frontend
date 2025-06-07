@@ -282,7 +282,7 @@ export default function TeamManagement() {
 
   return (
 
-    <RoleGuard allowedRoles={[user_role.admin]}>
+    <RoleGuard allowedRoles={[user_role.admin,user_role.sales]}>
 
       <div className="p-6">
 

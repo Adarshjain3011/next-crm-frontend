@@ -64,90 +64,7 @@ export default function Clients() {
 
   console.log("filter query data is ", filterQueryData);
 
-
-  const [dummyData, setDummyData] = useState(
-
-    [{
-      clientId: "663c1234567890abcdef111",
-      version: 1,
-      items: [
-        {
-          description: "5 Cafe Chair && 10 tables",
-          hsn: "9401",
-          unit: "pcs",
-          quantity: 15,
-          finalUnitPrice: 2200,
-          subtotal: 15 * 2200, // 33000
-          vendors: [
-            {
-              vendorId: "663c123abc111",
-              description: "5 cafe chairs", // Optional - not in schema
-              quantity: 5,
-              costPerUnit: 1800,
-              advance: 4000,
-              deliveryDate: new Date("2025-05-15")
-            },
-            {
-              vendorId: "663c123abc112",
-              description: "5 tables", // Optional
-              quantity: 5,
-              costPerUnit: 1800,
-              advance: 4000,
-              deliveryDate: new Date("2025-05-15")
-            },
-            {
-              vendorId: "663c123abc113",
-              description: "5 tables", // Optional
-              quantity: 5,
-              costPerUnit: 1800,
-              advance: 4000,
-              deliveryDate: new Date("2025-05-15")
-            }
-          ]
-        },
-        {
-          description: "Cafe Chair",
-          hsn: "9401",
-          unit: "pcs",
-          quantity: 10,
-          finalUnitPrice: 2200,
-          subtotal: 10 * 2200, // 22000
-          // vendors: [
-          //   {
-          //     vendorId: "663c123abc111",
-          //     description: "5 tables", // Optional
-          //     quantity: 5,
-          //     costPerUnit: 1800,
-          //     advance: 4000,
-          //     deliveryDate: new Date("2025-05-15")
-          //   },
-          //   {
-          //     vendorId: "663c123abc111",
-          //     description: "5 tables", // Optional
-          //     quantity: 5,
-          //     costPerUnit: 1800,
-          //     advance: 4000,
-          //     deliveryDate: new Date("2025-05-15")
-          //   }
-          // ]
-        }
-      ],
-      taxPercent: 18,
-      transport: 1000,
-      installation: 500,
-      notes: "Client prefers premium fabric finish.",
-      totalAmount: 33000 + 22000 + 18 + 1000 + 500, // Helper function below
-      status: "Finalized"
-    }
-
-    ]
-
-  )
-
-
   const [client, setClient] = useState(filterQueryData);
-
-
 
   const handleVendorDetailsChangeHandlerAtQuotes = (e, key) => {
 
@@ -238,8 +155,6 @@ export default function Clients() {
 
   const handleDeleteVendorAtQuotes = async (vendorId, itemIndex, versionIndex) => {
     try {
-      // Send API request
-      // const result = await deleteVendorFromEnqueryAtQuotes({ vendorId, enqueryId: client._id });
 
       // Clone the existing data
       const updatedData = [...dummyData]; // array of quote versions
@@ -302,14 +217,6 @@ export default function Clients() {
   }
 
 
-  const addVersionDataAtQuotes = async () => {
-
-
-
-  }
-
-
-
   const handleNewVendorAssignToEnqueryHandler = async (data) => {
 
     try {
@@ -334,6 +241,7 @@ export default function Clients() {
 
   }
 
+  // new follow up add handler
 
   const NewFollowUpAddHandler = async (data) => {
 
@@ -353,6 +261,9 @@ export default function Clients() {
 
   }
 
+
+
+  // add new Quotation to the client
 
   const addNewQuotation = async (data) => {
 
@@ -386,10 +297,6 @@ export default function Clients() {
 
     try {
 
-      // const result = await addNewQuotationToClient(formData);
-
-      // console.log("result ka data ", result);
-
       setDummyData([...dummyData, data]);
 
       setAddNewQuoteFormModal(false);
@@ -402,6 +309,7 @@ export default function Clients() {
 
   };
 
+  // edit item change handler 
 
   const editItemChangeHandler = (e) => {
 

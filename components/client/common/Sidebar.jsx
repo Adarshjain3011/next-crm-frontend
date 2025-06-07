@@ -19,50 +19,72 @@ import { useDispatch } from 'react-redux';
 import { clearUser } from '@/app/store/slice/userSlice';
 import { cn } from "@/lib/utils";
 
+import { useRole } from '@/app/hooks/useRole';
+
 export default function Sidebar() {
     const router = useRouter();
     const pathname = usePathname();
     const dispatch = useDispatch();
     const [isCollapsed, setIsCollapsed] = useState(false);
 
-    const menuItems = [
+    const { isAdmin, isSales, isAuthenticated } = useRole();
 
+    // If not authenticated and not on login page, don't render sidebar
+    if (!isAuthenticated && pathname !== '/auth/login') {
+        return null;
+    }
+
+    const menuItems = [
         {
             name: 'Dashboard',
             icon: <LayoutDashboard size={20} />,
             path: '/dashboard',
+            roles: ['admin', 'sales'], // Available for both admin and sales
         },
         {
             name: 'Customer Enquiry',
             icon: <LayoutDashboard size={20} />,
             path: '/client-dashboard',
+            roles: ['admin', 'sales'],
         },
         {
             name: 'Orders',
             icon: <ClipboardList size={20} />,
             path: '/order-dashboard',
+            roles: ['admin', 'sales'],
         },
         {
             name: 'Invoices',
             icon: <Receipt size={20} />,
             path: '/all-invoices',
+            roles: ['admin'], // Only for admin
         },
         {
             name: 'Create Invoice',
             icon: <FileText size={20} />,
             path: '/invoice-form',
+            roles: ['admin'], // Only for admin
         },
         {
             name: 'Team',
             icon: <Users size={20} />,
             path: '/team-management',
+            roles: ['admin'], // Only for admin
         },
         {
             name: 'New Enquiry',
             icon: <PlusCircle size={20} />,
             path: '/create-new-enquery',
+            roles: ['admin', 'sales'],
         },
     ];
+
+    // Filter menu items based on user role
+    const filteredMenuItems = menuItems.filter(item => {
+        if (isAdmin) return true;
+        if (isSales) return item.roles.includes('sales');
+        return false;
+    });
 
     const handleLogout = () => {
         if (window.confirm('Are you sure you want to logout?')) {
@@ -70,6 +92,11 @@ export default function Sidebar() {
             router.push('/auth/login');
         }
     };
+
+    // Don't render sidebar on login page
+    if (pathname === '/auth/login') {
+        return null;
+    }
 
     return (
         <div className={cn(
@@ -105,7 +132,7 @@ export default function Sidebar() {
             {/* Navigation Menu */}
             <nav className="flex-1 py-4">
                 <div className="px-2">
-                    {menuItems.map((item) => {
+                    {filteredMenuItems.map((item) => {
                         const isActive = pathname === item.path;
                         return (
                             <div

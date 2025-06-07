@@ -33,6 +33,8 @@ export default function OrderDashboard() {
     const router = useRouter();
     const { isAdmin, isSales, user } = useRole();
 
+    console.log("user data at the order dashboard ",user);
+
     const [uploadInvoiceModal, setUploadInvoiceModal] = useState(false);
 
     const [selectedOrderData, setSelectedOrderData] = useState(null);
@@ -77,26 +79,28 @@ export default function OrderDashboard() {
         return vendor ? vendor.name : "Unknown Vendor";
     }
 
+    let filteredOrders = orders;
+
     // Filter orders based on user role and filters
-    const filteredOrders = orders.filter((order) => {
-        // Base filters
-        const clientName = order.clientId?.name || "";
-        const nameMatch = clientName.toLowerCase().includes(filters.name.toLowerCase());
-        const statusMatch = filters.status ? order.deliveryStatus === filters.status : true;
-        const dateMatch = filters.date
-            ? new Date(order.createdAt).toLocaleDateString() ===
-            new Date(filters.date).toLocaleDateString()
-            : true;
+    // const filteredOrders = orders.filter((order) => {
+    //     // Base filters
+    //     const clientName = order.clientId?.name || "";
+    //     const nameMatch = clientName.toLowerCase().includes(filters.name.toLowerCase());
+    //     const statusMatch = filters.status ? order.deliveryStatus === filters.status : true;
+    //     const dateMatch = filters.date
+    //         ? new Date(order.createdAt).toLocaleDateString() ===
+    //         new Date(filters.date).toLocaleDateString()
+    //         : true;
 
-        // Role-based filtering
-        if (isSales) {
-            // Sales person can only see their assigned orders
-            return order.salesPerson === user._id && nameMatch && statusMatch && dateMatch;
-        }
+    //     // Role-based filtering
+    //     if (isSales) {
+    //         // Sales person can only see their assigned orders
+    //         return order.salesPerson === user._id && nameMatch && statusMatch && dateMatch;
+    //     }
 
-        // Admin can see all orders
-        return nameMatch && statusMatch && dateMatch;
-    });
+    //     // Admin can see all orders
+    //     return nameMatch && statusMatch && dateMatch;
+    // });
 
     async function generateInvoiceHandler(order) {
         try {
@@ -136,7 +140,6 @@ export default function OrderDashboard() {
             toast.error("Failed to prepare invoice data");
         }
     }
-
 
 
     return (
