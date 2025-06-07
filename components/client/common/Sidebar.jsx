@@ -11,6 +11,7 @@ import {
     LogOut,
     Receipt,
     ChevronLeft,
+    UserCircle
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -77,6 +78,12 @@ export default function Sidebar() {
             path: '/create-new-enquery',
             roles: ['admin', 'sales'],
         },
+        {
+            name: 'My Profile',
+            icon: <UserCircle size={20} />,
+            path: '/profile',
+            roles: ['admin', 'sales'],
+        },
     ];
 
     // Filter menu items based on user role
@@ -112,10 +119,10 @@ export default function Sidebar() {
             {/* Sidebar Header */}
             <div className="p-4 border-b border-gray-800">
                 <div className="flex items-center gap-2">
-                    <Avatar className="h-8 w-8">
+                    {/* <Avatar className="h-8 w-8">
                         <AvatarImage src="/logo.png" alt="Logo" />
                         <AvatarFallback>MI</AvatarFallback>
-                    </Avatar>
+                    </Avatar> */}
                     {!isCollapsed && (
                         <div>
                             <h1 className="text-sm font-semibold">Mayuri International</h1>
