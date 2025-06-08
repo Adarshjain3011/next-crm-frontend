@@ -15,6 +15,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 
+import DownloadExcelButton from "@/components/common/DownloadExcelButton";
+
 import { taskAssigningStatus, user_role, enqueryHeadingName } from "@/lib/data";
 import {
     fetchAllSalesPerson,
@@ -27,6 +29,7 @@ import { setAllMembersData } from "@/app/store/slice/membersSlice";
 import RoleGuard from "@/components/auth/RoleGuard";
 import { useRole } from "@/app/hooks/useRole";
 import { HiOutlineArrowRight } from 'react-icons/hi';
+import { Download } from "lucide-react";
 
 export default function ClientDashboardPage() {
     const { isAdmin, isSales, user } = useRole();
@@ -78,6 +81,8 @@ export default function ClientDashboardPage() {
         });
     }, [clients, filters, isSales, user]);
 
+
+
     useEffect(() => {
         async function getAllUserData() {
             try {
@@ -123,12 +128,46 @@ export default function ClientDashboardPage() {
         return headings;
     }, [isAdmin]);
 
+
+    let dowloadableDataForExcel = [];
+
+    filteredClients && filteredClients.forEach((data)=>{
+
+        let item = {
+
+            email:data.email,
+            name:data.name,
+            phone:data.phone,
+            date:formatDate(data.createdAt),
+            status:data.status,
+            assignedTo:data.assignedTo?.name || "",
+            assignedBy:data.assignedBy?.name || "",
+            assignmentDate:formatDate(data.assignmentDate),
+            sourceWebsite:data?.sourceWebsite || "",
+            sourcePlatform:data?.sourcePlatform || ""
+
+        }
+
+        dowloadableDataForExcel.push(item);
+        
+    });
+
+    console.log("download data for the excel ",dowloadableDataForExcel);
+
+
     return (
         <RoleGuard allowedRoles={[user_role.admin, user_role.sales]}>
             <div className="p-6">
                 <div className="flex justify-between items-center gap-4">
                     <h1 className="text-2xl font-semibold mb-4">Client Inquiries List</h1>
-                    <Button>Download Excel</Button>
+
+                    <DownloadExcelButton
+
+                        data={dowloadableDataForExcel}
+                        filename="client_enquery_list.xlsx"
+
+                    />
+
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 mb-6">
@@ -282,3 +321,5 @@ export default function ClientDashboardPage() {
         </RoleGuard>
     );
 }
+
+

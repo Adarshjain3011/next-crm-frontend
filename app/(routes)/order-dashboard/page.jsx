@@ -29,6 +29,8 @@ import { store } from "@/app/store/store";
 import { handleAxiosError } from "@/lib/handleAxiosError";
 import UploadInvoiceCompo from "@/components/common/UploadInvoiceCompo";
 
+import DownloadExcelButton from "@/components/common/DownloadExcelButton";
+
 export default function OrderDashboard() {
     const router = useRouter();
     const { isAdmin, isSales, user } = useRole();
@@ -141,13 +143,36 @@ export default function OrderDashboard() {
         }
     }
 
+    // Function to prepare order data for Excel
+    const prepareOrderDataForExcel = () => {
+        return filteredOrders.map(order => ({
+            'Order ID': order._id,
+            'Client Name': order.clientId?.name || 'Unknown',
+            'Quote Version': order.quoteVersion,
+            'Transport Cost': order.transport || 0,
+            'Installation Cost': order.installation || 0,
+            'GST Amount': order.gstAmount || 0,
+            'Total Payable': order.totalPayable || 0,
+            'Order Value': order.orderValue || 0,
+            'Status': order.deliveryStatus,
+            'Created Date': formatDateForInput(order.createdAt),
+            'Vendors': order.vendorAssignments?.map(v => getVendorName(v.vendorId)).join(', ') || 'No Vendors',
+            'Total Vendor Orders': order.vendorAssignments?.length || 0,
+        }));
+    };
 
     return (
         <RoleGuard allowedRoles={[user_role.admin, user_role.sales]}>
             <div className="p-6">
                 <div className="flex justify-between items-center gap-4">
                     <h1 className="text-2xl font-semibold mb-4">Order Dashboard</h1>
-                    {isAdmin && <Button>Download Excel</Button>}
+                    {isAdmin && (
+                        <DownloadExcelButton
+                            data={prepareOrderDataForExcel()}
+                            filename="orders_report.xlsx"
+                            sheetName="Orders"
+                        />
+                    )}
                 </div>
 
                 {/* Filters Section */}
