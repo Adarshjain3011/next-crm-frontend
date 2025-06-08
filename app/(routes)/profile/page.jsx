@@ -110,7 +110,7 @@ export default function ProfilePage() {
                                     <div className="space-y-2">
                                         <Label htmlFor="name">Full Name</Label>
                                         <div className="relative">
-                                            <User className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                                            {/* <User className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" /> */}
                                             <Input
                                                 id="name"
                                                 name="name"
@@ -126,7 +126,7 @@ export default function ProfilePage() {
                                     <div className="space-y-2">
                                         <Label htmlFor="email">Email Address</Label>
                                         <div className="relative">
-                                            <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                                            {/* <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" /> */}
                                             <Input
                                                 id="email"
                                                 name="email"
@@ -143,7 +143,7 @@ export default function ProfilePage() {
                                     <div className="space-y-2">
                                         <Label htmlFor="phone">Phone Number</Label>
                                         <div className="relative">
-                                            <Phone className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                                            {/* <Phone className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" /> */}
                                             <Input
                                                 id="phone"
                                                 name="phone"
@@ -164,7 +164,7 @@ export default function ProfilePage() {
                                     <div className="space-y-2">
                                         <Label htmlFor="company">Company</Label>
                                         <div className="relative">
-                                            <Building className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                                            {/* <Building className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" /> */}
                                             <Input
                                                 id="company"
                                                 name="company"
@@ -178,7 +178,7 @@ export default function ProfilePage() {
                                     <div className="space-y-2">
                                         <Label htmlFor="role">Role</Label>
                                         <div className="relative">
-                                            <Shield className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                                            {/* <Shield className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" /> */}
                                             <Input
                                                 id="role"
                                                 name="role"
@@ -192,7 +192,7 @@ export default function ProfilePage() {
                                     <div className="space-y-2">
                                         <Label htmlFor="joinDate">Join Date</Label>
                                         <div className="relative">
-                                            <Calendar className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                                            {/* <Calendar className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" /> */}
                                             <Input
                                                 id="joinDate"
                                                 name="joinDate"
@@ -236,7 +236,7 @@ export default function ProfilePage() {
                                 </div>
                             </div>
 
-                            {isEditing && (
+                            {/* {isEditing && (
                                 <div className="flex justify-end gap-3 pt-6">
                                     <Button
                                         type="button"
@@ -253,7 +253,7 @@ export default function ProfilePage() {
                                         Save Changes
                                     </Button>
                                 </div>
-                            )}
+                            )} */}
                         </form>
                     </CardContent>
                 </Card>
@@ -261,3 +261,4 @@ export default function ProfilePage() {
         </div>
     );
 } 
+
