@@ -95,6 +95,7 @@ export default function OrderDashboard() {
                 dispatch(setOrderData(response.data));
                 // Log what's in Redux after fetching fresh data
                 const state = store.getState().invoice;
+
                 router.push(`/invoice-form/${order._id}`);
             }
         } catch (error) {
