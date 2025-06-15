@@ -485,7 +485,7 @@ export default function InvoiceFormPage() {
   // itemsData.push({ description: '', hsn: '', unit: '', quantity: 1, rate: 0, amount: 0 });
 
   return (
-    <div className="p-6 space-y-6" ref={invoiceRef}>
+    <div className="p-6 space-y-6 print-area" ref={invoiceRef}>
       <Card>
         <CardHeader>
           <CardTitle className="text-center text-xl font-bold uppercase">GST TAX INVOICE</CardTitle>

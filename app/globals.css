@@ -116,7 +116,60 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
 }
+
+@media print {
+  /* Hide sidebar and any other non-invoice elements */
+  .relative.h-screen.bg-gray-900,
+  .navbar,
+  .logout,
+  .other-non-print {
+    display: none !important;
+  }
+
+  /* Remove h-screen and overflow-y-auto for print */
+  .flex.h-screen {
+    height: auto !important;
+  }
+  .flex-1.bg-gray-100.overflow-y-auto {
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  /* Make the invoice area take full width and height */
+  .print-area {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    page-break-inside: auto !important;
+  }
+
+  /* Make sure all parent containers allow content to expand */
+  body,
+  html,
+  #__next,
+  .flex-1,
+  .bg-gray-100 {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* Optional: Set page size for PDF */
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+}
+
+
