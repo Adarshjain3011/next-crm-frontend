@@ -418,7 +418,7 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <Label>Tax Percentage</Label>
-                            <Input {...register("taxPercent", { required: "Required" })} />
+                            <Input {...register("taxPercent",)} />
                         </div>
                         <div>
                             <Label>Transport</Label>

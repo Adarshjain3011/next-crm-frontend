@@ -75,6 +75,8 @@ export const FollowUpCompo = ({ client, setClient }) => {
 
             console.log("message", followUpInputRef.current.value);
 
+            // message, enqueryId, followUpId
+
             data.message = followUpInputRef.current.value;
             data.enqueryId = client._id;
             data.followUpId = activeFollowUpId;
