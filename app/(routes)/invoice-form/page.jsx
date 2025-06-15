@@ -132,13 +132,11 @@ export default function InvoiceFormPage() {
   };
 
   const handleSubmit = async () => {
-    console.log('Invoice Data:', invoiceData);
 
     try {
 
       const result = await createNewInvoice(invoiceData);
 
-      console.log("Invoice created successfully:", result);
 
     } catch (error) {
 

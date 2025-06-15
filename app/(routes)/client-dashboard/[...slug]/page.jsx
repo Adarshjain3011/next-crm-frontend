@@ -70,12 +70,11 @@ export default function Clients() {
     queryFn: async () => {
       try {
         if (!slug?.[0]) {
-          console.log("No client ID available");
           return null;
         }
-        console.log("Fetching quote data for slug:", slug);
+
         const result = await getAllQuote(slug[0]);
-        console.log("Quote data fetched:", result);
+
         dispatch(setQuoteData(result));
         return result;
       } catch (error) {

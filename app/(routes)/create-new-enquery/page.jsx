@@ -29,11 +29,7 @@ export default function createNewEnquery() {
 
         try {
 
-            console.log("data is : ", data);
-
             const result = await createNewClientEnquery(data);
-
-            console.log("result is : ", result);
 
             toast.success("Enquery Created Successfully");
 

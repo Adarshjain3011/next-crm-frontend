@@ -30,24 +30,17 @@ export default function AddNewMemberModal({ setAddNewMemberModal }) {
     const membersData = useSelector((state) => state.members.data);
     const dispatch = useDispatch();
 
-    async function addNewMemberSubmitHandler(data) {
+    const onSubmit = async (data) => {
         try {
-            console.log("form data is ", data);
-
-            const result = await createNewUser(data);
-
-            dispatch(addNewMember(result));
-            setAddNewMemberModal(false); // close modal
-
-            toast.success("new member added successfully");
-
+            const result = await addNewMember(data);
+            if (result.success) {
+                setAddNewMemberModal(false);
+                toast.success("Member added successfully");
+            }
         } catch (error) {
-            console.log("error is ", error);
-            handleAxiosError(error);
+            toast.error(error.message || "Failed to add member");
         }
-    }
-
-
+    };
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
@@ -62,7 +55,7 @@ export default function AddNewMemberModal({ setAddNewMemberModal }) {
 
                 </div>
 
-                <form onSubmit={handleSubmit(addNewMemberSubmitHandler)} className="flex flex-col gap-4">
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
                     <div>
                         <Label className="block mb-1">User Name</Label>
                         <Input

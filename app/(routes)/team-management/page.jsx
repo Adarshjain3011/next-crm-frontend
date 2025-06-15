@@ -76,7 +76,6 @@ export default function TeamManagement() {
       if (columnId != "password") {
 
         dispatch(updateExistingMembersData(reduxDataToUpdate));
-        console.log("result is ", result);
 
       }
       else {
@@ -86,15 +85,12 @@ export default function TeamManagement() {
       }
 
     } catch (error) {
-      console.log("error is : ", error);
       handleAxiosError(error);
     }
   }, 500); // delay of 500ms
 
   const handleEdit = (rowIndex, columnId, value) => {
     if (value === "") return;
-
-    console.log("handle edit ke andar ", rowIndex, columnId, value);
 
     const dataToUpdate = {
       userId: membersData[rowIndex]._id,
@@ -243,9 +239,6 @@ export default function TeamManagement() {
   });
 
 
-  console.log("all user data is ", membersData);
-
-
   // useEffect hook 
 
   useEffect(() => {
@@ -262,7 +255,6 @@ export default function TeamManagement() {
 
       } catch (error) {
 
-        console.log("error is :", error);
         handleAxiosError(error);
 
       }
@@ -270,8 +262,6 @@ export default function TeamManagement() {
     }
 
     if (!membersData || membersData.length === 0) {
-
-      console.log("hellow ")
 
       getAllUserData();
 

@@ -35,8 +35,6 @@ export default function OrderDashboard() {
     const router = useRouter();
     const { isAdmin, isSales, user } = useRole();
 
-    console.log("user data at the order dashboard ",user);
-
     const [uploadInvoiceModal, setUploadInvoiceModal] = useState(false);
 
     const [selectedOrderData, setSelectedOrderData] = useState(null);
@@ -69,57 +67,24 @@ export default function OrderDashboard() {
 
     let membersData = useSelector((state) => state.members.data);
 
-    console.log("members data  at the quotes", membersData);
-
-    console.log("orders data at the quotes", orders);
-
     function getVendorName(vendorId) {
-        console.log("Vendor ID at the get vendor name", vendorId);
-        console.log("Members data at the get vendor name", membersData);
+
         const vendor = membersData.find((member) => member._id === vendorId);
-        console.log("Vendor name at the get vendor name", vendor);
         return vendor ? vendor.name : "Unknown Vendor";
     }
 
     let filteredOrders = orders;
 
-    // Filter orders based on user role and filters
-    // const filteredOrders = orders.filter((order) => {
-    //     // Base filters
-    //     const clientName = order.clientId?.name || "";
-    //     const nameMatch = clientName.toLowerCase().includes(filters.name.toLowerCase());
-    //     const statusMatch = filters.status ? order.deliveryStatus === filters.status : true;
-    //     const dateMatch = filters.date
-    //         ? new Date(order.createdAt).toLocaleDateString() ===
-    //         new Date(filters.date).toLocaleDateString()
-    //         : true;
-
-    //     // Role-based filtering
-    //     if (isSales) {
-    //         // Sales person can only see their assigned orders
-    //         return order.salesPerson === user._id && nameMatch && statusMatch && dateMatch;
-    //     }
-
-    //     // Admin can see all orders
-    //     return nameMatch && statusMatch && dateMatch;
-    // });
 
     async function generateInvoiceHandler(order) {
         try {
             dispatch(setLoading());
-
-            // Log the current state before generating invoice
-            console.log("Current order data:", order);
 
             // If the order has all needed data, use it directly
             if (order.finalQuotationId && order.clientId) {
                 dispatch(setOrderData(order));
                 // Log what's in Redux after dispatch
                 const state = store.getState().invoice;
-                console.log("Redux state after dispatch:", {
-                    orderData: state.orderData,
-                    invoiceData: state.invoiceData
-                });
                 router.push(`/invoice-form/${order._id}`);
                 return;
             }
@@ -130,10 +95,6 @@ export default function OrderDashboard() {
                 dispatch(setOrderData(response.data));
                 // Log what's in Redux after fetching fresh data
                 const state = store.getState().invoice;
-                console.log("Redux state after fresh data:", {
-                    orderData: state.orderData,
-                    invoiceData: state.invoiceData
-                });
                 router.push(`/invoice-form/${order._id}`);
             }
         } catch (error) {

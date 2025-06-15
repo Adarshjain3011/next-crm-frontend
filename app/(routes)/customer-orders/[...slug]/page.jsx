@@ -34,8 +34,6 @@ export default function Clients() {
 
   const { slug } = useParams();
 
-  console.log("slug is ", slug);
-
   const [editVendorModalAtQuotes, setEditVendorModalAtQuotes] = useState(null);
 
   const [newVendorAssignmentFormData, setNewVendorAssingmentFormData] = useState(null);
@@ -56,25 +54,15 @@ export default function Clients() {
 
   const cachedQueryData = queryClient.getQueryData(['clientQueries']);
 
-  console.log("cachedQueryData", cachedQueryData);
-
   // filtered Query Data 
 
   const filterQueryData = cachedQueryData && cachedQueryData.find((data) => data._id == slug);
-
-  console.log("filter query data is ", filterQueryData);
 
   const [client, setClient] = useState(filterQueryData);
 
   const handleVendorDetailsChangeHandlerAtQuotes = (e, key) => {
 
     const { name, value } = e.target;
-
-    console.log("name ", name);
-
-    console.log("value is ", value);
-
-    console.log("edit vendor data at  quotes ", editVendorDataAtQuotes);
 
     setEditVendorDataAtQuotes((prev) => ({
       ...prev,
@@ -177,24 +165,15 @@ export default function Clients() {
 
   const addNewVendorAtQuotes = async (versionIndex, itemIndex) => {
 
-
-    console.log("add new vendor ke andar ", versionIndex, itemIndex);
-
     const updatedData = [...dummyData];
 
     let updatedVendors = updatedData[versionIndex].items[itemIndex].vendors;
 
-    console.log("updated vendors ", updatedVendors);
-
     if (!updatedVendors) {
-
-      console.log("vendors array naii hai");
 
       updatedVendors = [];
 
     }
-
-    console.log("updatedVendors at the add new vendor ke andar ", updatedVendors);
 
     updatedVendors.push({
 
@@ -220,8 +199,6 @@ export default function Clients() {
   const handleNewVendorAssignToEnqueryHandler = async (data) => {
 
     try {
-
-      console.log("handle new vendor assign handler ke andar  ", data);
 
       // enqueryId, vendorId
 
@@ -249,8 +226,6 @@ export default function Clients() {
 
       data.enqueryId = client._id;
 
-      console.log("add new follow up handler ke andar ", data);
-
       setClient({ ...client, followUps: [...client.followUps, data] });
 
     } catch (error) {
@@ -267,11 +242,7 @@ export default function Clients() {
 
   const addNewQuotation = async (data) => {
 
-    console.log("submit handler data ", data);
-
     const formData = new FormData();
-
-    console.log("client id is ", client._id);
 
     formData.append("clientId", client._id);
 
@@ -289,11 +260,6 @@ export default function Clients() {
 
 
     formData.append("items", JSON.stringify(data.items)); // Important!
-
-    console.log("form data is ", formData.get("clientId"));
-
-    console.log("items data ", JSON.parse(formData.get("items")));
-
 
     try {
 
@@ -507,15 +473,9 @@ export default function Clients() {
                   const hasVendors = item.vendors && item.vendors.length > 0;
                   const mainRowKey = `${versionIdx}-${itemIdx}`;
 
-                  console.log("editing item key ", editItemKey);
-
                   if (editItemKey.length > 0 && isMainRowEditing) {
 
-                    console.log("aa gaya");
-
                     let check = editItemKey == mainRowKey;
-
-                    console.log("")
                     setMainRowEditing(check);
 
                   }

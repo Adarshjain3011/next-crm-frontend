@@ -4,6 +4,7 @@ import { Download, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { jsPDF } from 'jspdf';
 import axios from 'axios';
+import { toast } from 'react-hot-toast';
 
 const GeneratePDFButton = ({ invoiceRef, invoiceId }) => {
   const extractData = (element) => {
@@ -108,7 +109,7 @@ const GeneratePDFButton = ({ invoiceRef, invoiceId }) => {
       window.open(pdfUrl, '_blank');
     } catch (error) {
       console.error('Error generating PDF preview:', error);
-      alert('Error generating PDF preview');
+      toast.error("Failed to generate PDF preview");
     }
   };
 
@@ -120,8 +121,6 @@ const GeneratePDFButton = ({ invoiceRef, invoiceId }) => {
       const doc = generatePDF(data);
       const pdfBlob = doc.output('blob');
       
-      console.log("pdf blob ", pdfBlob);
-      
       // Upload PDF
       const formData = new FormData();
       formData.append('file', pdfBlob, 'invoice.pdf');
@@ -130,12 +129,28 @@ const GeneratePDFButton = ({ invoiceRef, invoiceId }) => {
       const res = await axios.post('invoice/upload', formData);
 
       if (res.data?.url) {
-        alert('PDF generated and uploaded successfully!');
+        toast.success('PDF generated and uploaded successfully!');
       } else {
-        alert('PDF upload failed!');
+        toast.error('PDF upload failed!');
       }
     } catch (error) {
       console.error('Error generating/uploading PDF:', error);
+    }
+  };
+
+  const handleDownload = async () => {
+    try {
+      const pdfBlob = await generatePDF();
+      const url = window.URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `invoice-${invoiceData.invoiceNumber}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      toast.error("Failed to generate PDF");
     }
   };
 

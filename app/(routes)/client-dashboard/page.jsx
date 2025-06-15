@@ -152,9 +152,6 @@ export default function ClientDashboardPage() {
         
     });
 
-    console.log("download data for the excel ",dowloadableDataForExcel);
-
-
     return (
         <RoleGuard allowedRoles={[user_role.admin, user_role.sales]}>
             <div className="p-6">

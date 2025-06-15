@@ -10,8 +10,6 @@ import toast from 'react-hot-toast';
 
 export default function UploadInvoiceCompo({ order, setUploadInvoiceModal }) {
 
-    console.log("upload component invoice : ", order);
-
     const [file, setFile] = useState(null);
 
     const handleFileChange = (e) => {
@@ -25,35 +23,19 @@ export default function UploadInvoiceCompo({ order, setUploadInvoiceModal }) {
             return;
         }
 
-        console.log("upload component invoice : ", order);
-
-        // invoiceId and excelFile
-
         const formData = new FormData();
-
-        formData.append('invoiceId',order.invoiceId._id);
-
-        formData.append('excelFile',file);
-
+        formData.append('file', file);
+        formData.append('orderId', order._id);
 
         try {
-
             const result = await uploadPdfToInvoice(formData);
-
-            console.log("result is : ",result);
-
-            toast.success("invoice uploaded successfully ");
-
-            setUploadInvoiceModal(false);
-
+            if (result.success) {
+                toast.success("Invoice uploaded successfully");
+                setUploadInvoiceModal(false);
+            }
         } catch (error) {
-
-            console.log("error is  : ", error);
-
-            handleAxiosError(error);
-
+            toast.error(error.message || "Failed to upload invoice");
         }
-
     };
 
     return (

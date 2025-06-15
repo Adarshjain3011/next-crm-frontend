@@ -80,8 +80,6 @@ export default function CustomersOrderPage() {
 
         try {
 
-            console.log("clientId is ", enqueryId, "userId is ", salesPersonId);
-
             const response = await assignSalesPersonToEnquery({ enqueryId, salesPersonId });
 
             const updatedClients = clients.map(client =>
@@ -95,9 +93,6 @@ export default function CustomersOrderPage() {
 
         }
     }
-
-
-    console.log("filtered client are", filteredClients);
 
     return (
         <div className="p-6">

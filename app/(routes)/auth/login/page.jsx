@@ -31,7 +31,6 @@ export default function Login() {
   const onSubmit = async (values) => {
     try {
       const userData = await loginHandler(values);
-      console.log("Login response:", userData);
       dispatch(setUserData(userData));
       toast.success("Welcome back to Mayuri International");
       router.push('/client-dashboard');

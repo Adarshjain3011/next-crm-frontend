@@ -48,15 +48,10 @@ const quoteSlice = createSlice({
         updateRootFieldsAndItem: (state, action) => {
             const { rootFieldChanges, itemChanges, quoteId } = action.payload;
 
-            console.log("quotate slice ke andar aya hai", rootFieldChanges, itemChanges, quoteId);
-
-            console.log("state ka data hai", state.data);
-
             if (state.data) {
                 // Find the quote by ID
                 const quoteIndex = state.data.findIndex(quote => quote._id === quoteId);
                 if (quoteIndex === -1) {
-                    console.error("Quote not found");
                     return;
                 }
 

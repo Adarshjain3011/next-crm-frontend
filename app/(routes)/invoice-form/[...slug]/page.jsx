@@ -120,7 +120,6 @@ export default function InvoiceFormPage() {
           }));
         } catch (invoiceError) {
           if (!isMounted) return;
-          console.log("No existing invoice found, initializing with order data");
           dispatch(initializeInvoiceForm({
             savedInvoice: null,
             order: order
@@ -342,19 +341,11 @@ export default function InvoiceFormPage() {
       }
     });
 
-    // Log the change for debugging
-    console.log(`Tax ${name} changed:`, {
-      checked,
-      itemsTotal,
-      taxAmount,
-      newValue
-    });
   };
 
   const handleSubmit = async () => {
     try {
       const result = await createNewInvoice(invoiceDataState);
-      console.log("Invoice created successfully:", result);
       dispatch(clearInvoice());
       toast.success("Invoice created successfully");
       router.push('/order-dashboard');
@@ -402,8 +393,6 @@ export default function InvoiceFormPage() {
 
   const { slug } = useParams();
 
-  console.log("slug at the invoice form : ", slug);
-
   // calculate total amount with the items and tranport and installation 
   let totalAmountIncludingTax = invoiceDataState.transportCharges + invoiceDataState.installationCharges;
 
@@ -412,10 +401,6 @@ export default function InvoiceFormPage() {
   ));
 
   totalAmountIncludingTax = totalAmountIncludingTax + Number(invoiceDataState.cgstAmount) + Number(invoiceDataState.sgstAmount) + Number(invoiceDataState.igstAmount);
-
-  console.log("total amount including tax is : ", totalAmountIncludingTax);
-
-  // check the tax included 
 
   const handleSaveDraft = async () => {
     try {
@@ -428,9 +413,6 @@ export default function InvoiceFormPage() {
   };
 
   const handleUpdateChanges = async () => {
-
-
-    console.log('invoice state data :', invoiceDataState);
 
     try {
 
@@ -449,8 +431,6 @@ export default function InvoiceFormPage() {
         invoiceId: invoiceDataState._id, // Assuming we have the invoice ID
         updates: changedFields
       };
-
-      console.log('Sending update with changes:', updatePayload);
 
       const response = await updateInvoiceData(updatePayload);
 
