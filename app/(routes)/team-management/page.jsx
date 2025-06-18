@@ -73,8 +73,6 @@ export default function TeamManagement() {
 
   const membersData = useSelector((state) => state.members.data);
 
-  const [loading, setLoading] = useState(false);
-
   const dispatch = useDispatch();
 
   const debouncedUpdate = debounce(async (dataToUpdate, reduxDataToUpdate, dispatch, columnId) => {
@@ -344,8 +342,6 @@ export default function TeamManagement() {
           </div>
 
         </div>
-
-
 
         <Table>
           <TableHeader>

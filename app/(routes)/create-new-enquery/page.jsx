@@ -17,17 +17,24 @@ import RoleGuard from "@/components/auth/RoleGuard";
 
 import { useRole } from "@/app/hooks/useRole";
 
+import BeautifulLoader from "@/components/common/BeautifulLoader";
+import { useState } from "react";
+
 export default function createNewEnquery() {
 
     const { isAdmin, isSales } = useRole();
 
     const { register, handleSubmit, formState: { errors }, reset } = useForm();
 
+    const [loading,setLoading]= useState(false);
+
     // name, companyName, phone, email, address, requirement, sourceWebsite, sourcePlatform
 
     async function formSubmitHandler(data) {
 
         try {
+
+            setLoading(true);
 
             const result = await createNewClientEnquery(data);
 
@@ -42,7 +49,21 @@ export default function createNewEnquery() {
             handleAxiosError(error);
 
         }
+
+        finally{
+
+            setLoading(false);
+
+        }
     }
+
+
+    if(loading){
+
+        return <BeautifulLoader />
+
+    }
+
 
     return (
 

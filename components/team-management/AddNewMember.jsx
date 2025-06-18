@@ -10,7 +10,7 @@ import { RxCrossCircled } from "react-icons/rx";
 
 import { createNewUser } from "@/lib/api";
 import toast from "react-hot-toast";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { useSelector, useDispatch } from "react-redux";
 import { setUserData } from "@/app/store/slice/salesPersonData";
@@ -27,11 +27,15 @@ export default function AddNewMemberModal({ setAddNewMemberModal }) {
         handleSubmit,
     } = useForm();
 
+    const [loading,setLoading] = useState(false);
+
     const membersData = useSelector((state) => state.members.data);
     const dispatch = useDispatch();
 
     const onSubmit = async (data) => {
         try {
+
+            setLoading(true);
 
             console.log("onSubmit data:", data);
 
@@ -45,7 +49,22 @@ export default function AddNewMemberModal({ setAddNewMemberModal }) {
             
             handleAxiosError(error);
         }
+        finally{
+
+            setLoading(false);
+            reset(); // Reset the form fields after submission
+
+        }
     };
+
+    if(loading){
+
+        return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+                <BeautifulLoader />
+            </div>
+        );
+    }
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
