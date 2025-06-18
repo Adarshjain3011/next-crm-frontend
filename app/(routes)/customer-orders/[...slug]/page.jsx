@@ -490,7 +490,7 @@ export default function Clients() {
                         <tr key={rowKey} className="border-b">
                           {vendorIdx === 0 && (
                             <>
-                              <td className="border px-3 py-2" rowSpan={item.vendors.length}>{quote.version}</td>
+                              <td className="border px-3 py-2 text-blue-600 font-medium" rowSpan={item.vendors.length}>{quote.version}</td>
                               <td className="border px-3 py-2" rowSpan={item.vendors.length}>{item.description}</td>
                               <td className="border px-3 py-2" rowSpan={item.vendors.length}>{item.hsn}</td>
                               <td className="border px-3 py-2" rowSpan={item.vendors.length}>{item.unit}</td>

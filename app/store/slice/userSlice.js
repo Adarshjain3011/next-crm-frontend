@@ -37,6 +37,13 @@ const userSlice = createSlice({
       state.data = action.payload;
       state.isAuthenticated = true;
       state.error = null;
+    },
+    // Action to clear all application data
+    clearAllData: (state) => {
+      state.data = null;
+      state.loading = false;
+      state.error = null;
+      state.isAuthenticated = false;
     }
   },
   extraReducers: (builder) => {
@@ -59,6 +66,6 @@ const userSlice = createSlice({
   }
 });
 
-export const { clearUser, setLoading, setUserData } = userSlice.actions;
+export const { clearUser, setLoading, setUserData, clearAllData } = userSlice.actions;
 export default userSlice.reducer;
 

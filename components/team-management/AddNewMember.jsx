@@ -32,13 +32,18 @@ export default function AddNewMemberModal({ setAddNewMemberModal }) {
 
     const onSubmit = async (data) => {
         try {
-            const result = await addNewMember(data);
-            if (result.success) {
-                setAddNewMemberModal(false);
-                toast.success("Member added successfully");
-            }
-        } catch (error) {
-            toast.error(error.message || "Failed to add member");
+
+            console.log("onSubmit data:", data);
+
+            const result = await createNewUser(data);
+            
+            dispatch(addNewMember(data));
+            setAddNewMemberModal(false);
+            toast.success("Member added successfully");
+        }
+        catch (error) {
+            
+            handleAxiosError(error);
         }
     };
 

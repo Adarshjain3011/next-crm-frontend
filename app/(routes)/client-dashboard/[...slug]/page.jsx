@@ -34,6 +34,7 @@ import { handleAxiosError } from '@/lib/handleAxiosError';
 import { fetchAllUserQueries } from '@/lib/api';
 
 import { getSpecifiEnqueryDetails } from '@/lib/api';
+import { PageLoader } from '@/components/ui/loader';
 
 export default function Clients() {
   // Initialize all hooks at the top level
@@ -138,7 +139,7 @@ export default function Clients() {
 
   // Show loading state if either query is loading
   if (isClientLoading) {
-    return <div>Loading client data...</div>;
+    return <PageLoader text="Loading client data..." />;
   }
 
   // Show error if client is not found

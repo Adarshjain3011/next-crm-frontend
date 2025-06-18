@@ -13,12 +13,16 @@ import { useSelector, useDispatch } from 'react-redux';
 import { initializeInvoiceForm, updateInvoice, clearInvoice, resetToOrderData, setError, setOrderData, setLoading } from '@/app/store/slice/invoiceSlice';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
+import { PageLoader } from '@/components/ui/loader';
+import { useLoading } from '@/app/hooks/useLoading';
+import { InlineLoader } from '@/components/ui/loader';
 
 import {
   getInvoiceDetails,
   createNewInvoice,
   updateInvoiceData,
-  getAllOrders
+  getAllOrders,
+  deleteInvoiceData
 } from '@/lib/api';
 
 import { handleAxiosError } from '@/lib/handleAxiosError';
@@ -52,6 +56,10 @@ export default function InvoiceFormPage() {
   const [originalData, setOriginalData] = useState(null);
   const invoiceRef = useRef(null);
   const [dataFetched, setDataFetched] = useState(false);
+
+  const { isLoading: isSavingDraft, withLoading: withSavingDraft } = useLoading();
+  const { isLoading: isUpdating, withLoading: withUpdating } = useLoading();
+  const { isLoading: isDeleting, withLoading: withDeleting } = useLoading();
 
   // Reset states when unmounting or changing routes
   useEffect(() => {
@@ -345,12 +353,21 @@ export default function InvoiceFormPage() {
 
   const handleSubmit = async () => {
     try {
-      const result = await createNewInvoice(invoiceDataState);
-      dispatch(clearInvoice());
-      toast.success("Invoice created successfully");
-      router.push('/order-dashboard');
+      if (invoiceDataState._id) {
+        // If invoice exists, update it
+        await handleUpdateChanges();
+      } else {
+        // If invoice doesn't exist, create new one
+        const result = await createNewInvoice(invoiceDataState);
+
+        dispatch(updateInvoice(result));
+        toast.success("Invoice created successfully");
+        // Refresh the page to show the new invoice with its ID
+        window.location.reload();
+
+      }
     } catch (error) {
-      console.error("Error creating invoice:", error);
+      console.error("Error submitting invoice:", error);
       handleAxiosError(error);
     }
   };
@@ -363,12 +380,7 @@ export default function InvoiceFormPage() {
 
   // Show loading state
   if (isInitialLoading || isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin" />
-        <span className="ml-2">Loading invoice data...</span>
-      </div>
-    );
+    return <PageLoader text="Loading invoice data..." />;
   }
 
   // Error state
@@ -403,52 +415,77 @@ export default function InvoiceFormPage() {
   totalAmountIncludingTax = totalAmountIncludingTax + Number(invoiceDataState.cgstAmount) + Number(invoiceDataState.sgstAmount) + Number(invoiceDataState.igstAmount);
 
   const handleSaveDraft = async () => {
-    try {
-      await updateInvoiceData(invoiceDataState);
-      toast.success("Draft saved successfully");
-    } catch (error) {
-      console.error("Error saving draft:", error);
-      handleAxiosError(error);
-    }
+    await withSavingDraft(async () => {
+      try {
+        if (invoiceExists) {
+          // Update existing invoice
+          await updateInvoiceData(invoiceDataState);
+        } else {
+          // Create new invoice as draft
+          const result = await createNewInvoice(invoiceDataState);
+          if (result) {
+            dispatch(updateInvoice(result));
+            // Refresh the page to show the new invoice with its ID
+            window.location.reload();
+          }
+        }
+        toast.success("Draft saved successfully");
+      } catch (error) {
+        console.error("Error saving draft:", error);
+        handleAxiosError(error);
+      }
+    });
   };
 
   const handleUpdateChanges = async () => {
-
-    try {
-
-      if (invoiceDataState === undefined) {
-
-        toast.error("plz create the invoice first ");
-
-        return;
-
-      }
-
-
-      dispatch(setLoading());
-
-      const updatePayload = {
-        invoiceId: invoiceDataState._id, // Assuming we have the invoice ID
-        updates: changedFields
-      };
-
-      const response = await updateInvoiceData(updatePayload);
-
-      if (response) {
-        // Update original data with new values
-        setOriginalData(invoiceDataState);
-        // Clear tracked changes
-        setChangedFields({});
-        setHasChanges(false);
-        dispatch(updateInvoice(invoiceDataState));
-        toast.success("Invoice updated successfully");
-      }
-    } catch (error) {
-      console.error("Error updating invoice:", error);
-      toast.error("Failed to update invoice");
-    } finally {
-      dispatch(setError(null));
+    if (invoiceDataState === undefined) {
+      toast.error("Please create the invoice first");
+      return;
     }
+    await withUpdating(async () => {
+      try {
+        const updatePayload = {
+          invoiceId: invoiceDataState._id,
+          updates: changedFields
+        };
+        const response = await updateInvoiceData(updatePayload);
+        if (response) {
+          setOriginalData(invoiceDataState);
+          setChangedFields({});
+          setHasChanges(false);
+          dispatch(updateInvoice(invoiceDataState));
+          toast.success("Invoice updated successfully");
+        }
+      } catch (error) {
+        console.error("Error updating invoice:", error);
+        toast.error("Failed to update invoice");
+      }
+    });
+  };
+
+  const handleDeleteInvoice = async () => {
+
+    console.log("handleDeleteInvoice called",invoiceDataState._id);
+
+    if (!invoiceDataState._id) {
+      toast.error("No invoice to delete");
+      return;
+    }
+
+    const confirmed = window.confirm("Are you sure you want to delete this invoice? This action cannot be undone.");
+    if (!confirmed) return;
+
+    await withDeleting(async () => {
+      try {
+        await deleteInvoiceData(invoiceDataState._id);
+        toast.success("Invoice deleted successfully");
+        // Redirect to order dashboard
+        router.push('/order-dashboard');
+      } catch (error) {
+        console.error("Error deleting invoice:", error);
+        handleAxiosError(error);
+      }
+    });
   };
 
   // Map items from the provided data
@@ -461,15 +498,27 @@ export default function InvoiceFormPage() {
     amount: item.amount || 0,
   })) || [];
 
-  // Add an empty item for user input
-  // itemsData.push({ description: '', hsn: '', unit: '', quantity: 1, rate: 0, amount: 0 });
+  // Check if invoice exists (has an _id)
+  const invoiceExists = invoiceDataState._id ? true : false;
 
   return (
     <div className="p-6 space-y-6 print-area" ref={invoiceRef}>
       <Card>
-        <CardHeader>
-          <CardTitle className="text-center text-xl font-bold uppercase">GST TAX INVOICE</CardTitle>
+        <CardHeader className="relative">
+          <CardTitle className="text-center text-xl font-bold uppercase">
+            GST TAX INVOICE
+          </CardTitle>
+
+          <button
+            onClick={handleDeleteInvoice}
+            className="absolute top-2 right-2 flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 text-sm rounded-md transition"
+            style={{ display: invoiceExists ? 'flex' : 'none' }}
+          >
+            <Trash2 className="text-lg" />
+            Delete Invoice
+          </button>
         </CardHeader>
+
         <CardContent className="grid grid-cols-2 gap-4">
           <div>
             <Label>Client ID</Label>
@@ -772,21 +821,50 @@ export default function InvoiceFormPage() {
               variant="outline"
               className="w-full"
               onClick={handleSaveDraft}
+              disabled={isSavingDraft}
             >
-              Save as Draft
+              {isSavingDraft ? (<><InlineLoader className="mr-2" /> Saving...</>) : (invoiceExists ? 'Save Draft' : 'Create Draft')}
             </Button>
           </div>
         </div>
         <Button className="w-full" onClick={() => window.print()}>
           <Printer className="mr-2" size={18} /> Print
         </Button>
-        <Button className="w-full" onClick={handleSubmit}>
-          Submit Invoice
-        </Button>
 
+        {/* Show different buttons based on invoice existence */}
+        {invoiceExists ? (
+          // Invoice exists - show update and delete buttons
+          <div className="space-y-2">
+            <Button
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+              onClick={handleSubmit}
+              disabled={isUpdating}
+            >
+              {isUpdating ? (<><InlineLoader className="mr-2" /> Updating...</>) : 'Update Invoice'}
+            </Button>
 
-        {/* Update Changes Button - Now shows what fields have changed */}
-        {hasChanges && (
+            {/* <Button
+              variant="destructive"
+              className="w-full"
+              onClick={handleDeleteInvoice}
+              disabled={isDeleting}
+            >
+              {isDeleting ? (<><InlineLoader className="mr-2" /> Deleting...</>) : 'Delete Invoice'}
+            </Button> */}
+
+          </div>
+        ) : (
+          // Invoice doesn't exist - show create button
+          <Button
+            className="w-full bg-green-600 hover:bg-green-700 text-white"
+            onClick={handleSubmit}
+          >
+            Create Invoice
+          </Button>
+        )}
+
+        {/* Show update changes button only if there are changes and invoice exists */}
+        {hasChanges && invoiceExists && (
           <div className="space-y-2">
             <div className="text-sm text-gray-600">
               Changes pending in: {Object.keys(changedFields).join(', ')}
@@ -794,8 +872,9 @@ export default function InvoiceFormPage() {
             <Button
               className="w-full bg-yellow-500 hover:bg-yellow-600 text-white"
               onClick={handleUpdateChanges}
+              disabled={isUpdating}
             >
-              Update Changes
+              {isUpdating ? (<><InlineLoader className="mr-2" /> Updating...</>) : 'Update Changes'}
             </Button>
           </div>
         )}

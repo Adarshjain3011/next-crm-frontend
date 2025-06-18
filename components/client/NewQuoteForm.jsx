@@ -26,6 +26,8 @@ import { setQuoteData } from "@/app/store/slice/quoteSlice";
 
 import { updateRootFieldsAndItem } from "@/app/store/slice/quoteSlice";
 
+import { InlineLoader } from '@/components/ui/loader';
+
 
 let rootItemsFields = [
     "description",
@@ -454,7 +456,14 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
                             className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700"
                             disabled={isLoading}
                         >
-                            {isLoading ? "Submitting..." : "Submit"}
+                            {isLoading ? (
+                                <>
+                                    <InlineLoader className="mr-2" />
+                                    Submitting...
+                                </>
+                            ) : (
+                                "Submit"
+                            )}
                         </Button>
                     </div>
                 </form>

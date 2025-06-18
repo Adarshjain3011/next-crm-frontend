@@ -30,6 +30,8 @@ import RoleGuard from "@/components/auth/RoleGuard";
 import { useRole } from "@/app/hooks/useRole";
 import { HiOutlineArrowRight } from 'react-icons/hi';
 import { Download } from "lucide-react";
+import { useLoading } from '@/app/hooks/useLoading';
+import { InlineLoader } from '@/components/ui/loader';
 
 export default function ClientDashboardPage() {
     const { isAdmin, isSales, user } = useRole();
@@ -81,7 +83,7 @@ export default function ClientDashboardPage() {
         });
     }, [clients, filters, isSales, user]);
 
-
+    const { isLoading: isAssigning, withLoading } = useLoading();
 
     useEffect(() => {
         async function getAllUserData() {
@@ -101,14 +103,16 @@ export default function ClientDashboardPage() {
     }, [dispatch, membersData.length]);
 
     const handleSalesUserSelect = async (enqueryId, salesPersonId) => {
-        try {
-            await assignSalesPersonToEnquery({ enqueryId, salesPersonId });
-            queryClient.invalidateQueries(['clientQueries']);
-            toast.success("Salesperson assigned successfully!");
-        } catch (error) {
-            console.error("Failed to assign salesperson:", error);
-            toast.error("Failed to assign salesperson.");
-        }
+        await withLoading(async () => {
+            try {
+                await assignSalesPersonToEnquery({ enqueryId, salesPersonId });
+                queryClient.invalidateQueries(['clientQueries']);
+                toast.success("Salesperson assigned successfully!");
+            } catch (error) {
+                console.error("Failed to assign salesperson:", error);
+                toast.error("Failed to assign salesperson.");
+            }
+        });
     };
 
     const formatDate = (dateString) => {
@@ -282,9 +286,21 @@ export default function ClientDashboardPage() {
 
                                                 {isAdmin ? (
                                                     <TableCell>
-                                                        <Select onValueChange={(value) => handleSalesUserSelect(client._id, value)}>
+                                                        <Select 
+                                                            onValueChange={(value) => handleSalesUserSelect(client._id, value)}
+                                                            disabled={isAssigning}
+                                                        >
                                                             <SelectTrigger>
-                                                                <SelectValue placeholder={assignedPersonName || "Assign"} />
+                                                                <SelectValue placeholder={
+                                                                    isAssigning ? (
+                                                                        <div className="flex items-center">
+                                                                            <InlineLoader size="sm" className="mr-2" />
+                                                                            Assigning...
+                                                                        </div>
+                                                                    ) : (
+                                                                        assignedPersonName || "Assign"
+                                                                    )
+                                                                } />
                                                             </SelectTrigger>
                                                             <SelectContent>
                                                                 {salesPersonData.map(user => (

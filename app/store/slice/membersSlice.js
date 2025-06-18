@@ -39,6 +39,9 @@ const membersSlice = createSlice({
 
             state.data = updatedData;
         },
+        deleteExistingMember: (state, action) => {
+            state.data = state.data.filter((val) => val._id !== action.payload);
+        },
 
         clearAllMembersData : (state,action)=>{
 
@@ -49,6 +52,6 @@ const membersSlice = createSlice({
     },
 });
 
-export const { setAllMembersData, addNewMember, updateExistingMembersData,clearAllMembersData } = membersSlice.actions;
+export const { setAllMembersData, addNewMember, updateExistingMembersData,clearAllMembersData,deleteExistingMember } = membersSlice.actions;
 
 export default membersSlice.reducer;

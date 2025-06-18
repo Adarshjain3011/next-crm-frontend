@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from 'react';
 import React from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableRow } from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,21 +15,18 @@ import { getAllOrders } from "@/lib/api";
 import { orderTableHeaders } from "@/lib/data";
 import { formatDateForInput } from "@/lib/utils";
 import toast from "react-hot-toast";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import DisplayVendorDetails from "@/components/order/SpecificVendorDetails";
-import { useDispatch } from "react-redux";
 import { setOrderData, setLoading, setError } from "@/app/store/slice/invoiceSlice";
 import RoleGuard from "@/components/auth/RoleGuard";
 import { useRole } from "@/app/hooks/useRole";
 import { user_role } from "@/lib/data";
 import axios from "axios";
-
-
 import { store } from "@/app/store/store";
 import { handleAxiosError } from "@/lib/handleAxiosError";
 import UploadInvoiceCompo from "@/components/common/UploadInvoiceCompo";
-
 import DownloadExcelButton from "@/components/common/DownloadExcelButton";
+import { TableLoader } from '@/components/ui/loader';
 
 export default function OrderDashboard() {
     const router = useRouter();
@@ -171,11 +168,7 @@ export default function OrderDashboard() {
                 </div>
 
                 {/* Loading State */}
-                {isLoading && (
-                    <div className="flex justify-center items-center p-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-                    </div>
-                )}
+                {isLoading && <TableLoader text="Loading orders..." />}
 
                 {/* Error State */}
                 {error && (
@@ -363,13 +356,10 @@ export default function OrderDashboard() {
                                                                     </Button>
 
                                                                     <Button className="pt-7" onClick={() => {
-
                                                                         setUploadInvoiceModal(true);
                                                                         setSelectedOrderData(order);
-
                                                                     }}>
                                                                         Upload Invoice
-
                                                                     </Button>
 
                                                                 </div>
@@ -397,7 +387,14 @@ export default function OrderDashboard() {
                                                     <td className="border px-3 py-2 text-center">
                                                         {order.clientId?.name || "Unknown"}
                                                     </td>
-                                                    <td className="border px-3 py-2 text-center">{order.quoteVersion}</td>
+                                                    <td className="border px-3 py-2 text-center">
+                                                        <p
+                                                            className="text-blue-600 text-lg cursor-pointer"
+                                                            onClick={() => router.push(`/client-dashboard/${order.clientId?._id}`)}
+                                                        >
+                                                            {order.quoteVersion}
+                                                        </p>
+                                                    </td>
                                                     <td className="border px-3 py-2 text-center">
                                                         ₹{order.transport?.toLocaleString() || 0}
                                                     </td>

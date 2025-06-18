@@ -3,11 +3,13 @@
 import { useEffect } from 'react';
 
 import { useAuth } from '../hooks/useAuth';
+import { PageLoader } from '@/components/ui/loader';
+
 export function AuthProvider({ children }) {
   const { loading } = useAuth();
 
   if (loading) {
-    return <div>Loading...</div>; // Or your loading component
+    return <PageLoader text="Initializing application..." />;
   }
 
   return <>{children}</>;

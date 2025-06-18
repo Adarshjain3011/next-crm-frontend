@@ -55,6 +55,12 @@ import { useRole } from '@/app/hooks/useRole';
 
 import { user_role } from '@/lib/data';
 
+import { deleteUserData } from '@/lib/api';
+
+import { deleteExistingMember } from '../../store/slice/membersSlice';
+
+import BeautifulLoader from '@/components/common/BeautifulLoader';
+
 
 export default function TeamManagement() {
 
@@ -66,6 +72,8 @@ export default function TeamManagement() {
   const [addNewMemberModal, setAddNewMemberModal] = useState(false);
 
   const membersData = useSelector((state) => state.members.data);
+
+  const [loading, setLoading] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -88,6 +96,8 @@ export default function TeamManagement() {
       handleAxiosError(error);
     }
   }, 500); // delay of 500ms
+
+
 
   const handleEdit = (rowIndex, columnId, value) => {
     if (value === "") return;
@@ -140,6 +150,23 @@ export default function TeamManagement() {
       />
     );
   };
+
+
+  const handleDeleteUser = async (userId) => {
+
+    try {
+
+      await deleteUserData(userId);
+      dispatch(deleteExistingMember(userId));
+      toast.success("User deleted successfully");
+
+
+    } catch (error) {
+
+      handleAxiosError(error);
+
+    }
+  }
 
 
   const columns = [
@@ -206,7 +233,9 @@ export default function TeamManagement() {
       accessorKey: 'createdAt',
       cell: ({ getValue }) => {
         const rawDate = getValue();
+        console.log("rawDate", rawDate);
         const formattedDate = formatDateForInput(rawDate); // You already have this util
+        console.log("fomattedDate", formattedDate);
         return <span>{formattedDate}</span>;
       },
     },
@@ -223,6 +252,25 @@ export default function TeamManagement() {
         />
       ),
     },
+    {
+
+      header: 'Actions',
+      accessorKey: 'actions',
+      cell: ({ row }) => {
+        const member = row.original;
+
+        console.log("member data at delete member", member);
+
+        return (
+          <Button
+            variant="destructive"
+            onClick={()=>handleDeleteUser(member._id)}
+          >
+            Delete
+          </Button>
+        );
+      },
+    }
   ];
 
 
@@ -272,7 +320,7 @@ export default function TeamManagement() {
 
   return (
 
-    <RoleGuard allowedRoles={[user_role.admin,user_role.sales]}>
+    <RoleGuard allowedRoles={[user_role.admin, user_role.sales]}>
 
       <div className="p-6">
 
@@ -296,6 +344,7 @@ export default function TeamManagement() {
           </div>
 
         </div>
+
 
 
         <Table>

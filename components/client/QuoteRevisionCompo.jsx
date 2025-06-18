@@ -30,6 +30,8 @@ import { addNewVendorTOQuoteHandler, removeVendorFromQuoteHandler, updateQuoteIt
 
 import { clearAllQuoteData } from "@/app/store/slice/quoteSlice";
 
+import { SectionLoader } from '@/components/ui/loader';
+
 
 
 
@@ -407,6 +409,8 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
     }
   };
 
+  
+
   const handleStatusChange = async (quoteId, newStatus) => {
     try {
       dispatch(setLoading(true));
@@ -442,6 +446,8 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
         <div className="text-center py-4 text-gray-500">No quote data available. Click "Add New Quote" to create one.</div>
       )}
 
+      {loading && <SectionLoader text="Loading quote data..." />}
+
       {normalizedData.length > 0 && (
         <table className="w-full border-collapse border text-sm text-left">
           <thead>
@@ -474,7 +480,7 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
                         {/* Show version and cost details only for first vendor of first item in a version */}
                         {isFirstVendorInFirstItem && (
                           <>
-                            <td className="border px-3 py-2" rowSpan={quote.items.reduce((acc, curr) => acc + (curr.vendors?.length || 1), 0)}>{quote.version}</td>
+                            <td className="border px-3 py-2 text-blue-600 font-medium" rowSpan={quote.items.reduce((acc, curr) => acc + (curr.vendors?.length || 1), 0)}>{quote.version}</td>
                           </>
                         )}
                         {vendorIdx === 0 && (
@@ -747,7 +753,7 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
                   <tr key={`${quoteIdx}-${itemIdx}-no-vendor`} className="border-b">
                     {isFirstItemInVersion && (
                       <>
-                        <td className="border px-3 py-2" rowSpan={quote.items.reduce((acc, curr) => acc + (curr.vendors?.length || 1), 0)}>{quote.version}</td>
+                        <td className="border px-3 py-2 text-blue-600 font-medium" rowSpan={quote.items.reduce((acc, curr) => acc + (curr.vendors?.length || 1), 0)}>{quote.version}</td>
                       </>
                     )}
                     <td className="border px-3 py-2">

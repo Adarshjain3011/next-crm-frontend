@@ -36,7 +36,7 @@ import {
 } from 'chart.js';
 
 import RoleGuard from '@/components/auth/RoleGuard';
-import { useAuth } from '@/app/hooks/useAuth';
+// import { useAuth } from '@/app/hooks/useAuth';
 
 // Register ChartJS components
 ChartJS.register(
@@ -54,6 +54,7 @@ ChartJS.register(
 import { getAllOrders, fetchAllUserQueries, getAllInvoices } from '@/lib/api';
 import { useRole } from '@/app/hooks/useRole';
 import { user_role } from '@/lib/data';
+import { PageLoader } from '@/components/ui/loader';
 
 export default function Dashboard() {
 
@@ -161,11 +162,7 @@ export default function Dashboard() {
   }, [timeRange]);
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
+    return <PageLoader text="Loading dashboard data..." />;
   }
 
   return (

@@ -12,8 +12,9 @@ import { handleAxiosError } from "@/lib/handleAxiosError";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 import { setUserData } from "@/app/store/slice/userSlice";
-import { Mail, Lock, Loader2 } from 'lucide-react';
+import { Mail, Lock } from 'lucide-react';
 import Image from 'next/image';
+import { InlineLoader } from "@/components/ui/loader";
 
 export default function Login() {
   const dispatch = useDispatch();
@@ -153,7 +154,7 @@ export default function Login() {
                 >
                   {isLoading ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <InlineLoader className="mr-2" />
                       Signing in...
                     </>
                   ) : (

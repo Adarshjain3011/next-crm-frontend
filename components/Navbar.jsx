@@ -1,21 +1,15 @@
-
 'use client';
 
-import { useSelector, useDispatch } from 'react-redux';
-import { useRouter } from 'next/navigation';
+import { useSelector } from 'react-redux';
+import { useAuth } from '@/app/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { logoutHandler } from '@/lib/api';
-import { clearUser } from '@/app/store/slice/userSlice';
 
 export default function Navbar() {
   const user = useSelector((state) => state.user.data);
-  const dispatch = useDispatch();
-  const router = useRouter();
+  const { logout } = useAuth();
 
-  const handleLogout = () => {
-    logoutHandler(); // Clear the token from cookies
-    dispatch(clearUser()); // Clear the user data from Redux store
-    router.push('/auth/login');
+  const handleLogout = async () => {
+    await logout(true); // Clear all data
   };
 
   if (!user) return null;
@@ -40,3 +34,5 @@ export default function Navbar() {
     </nav>
   );
 } 
+
+

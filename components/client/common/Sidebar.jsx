@@ -14,6 +14,8 @@ import {
     UserCircle
 } from 'lucide-react';
 
+import { useAuth } from '@/app/hooks/useAuth';
+
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useDispatch } from 'react-redux';
@@ -21,14 +23,18 @@ import { clearUser } from '@/app/store/slice/userSlice';
 import { cn } from "@/lib/utils";
 
 import { useRole } from '@/app/hooks/useRole';
+import { handleAxiosError } from '@/lib/handleAxiosError';
 
 export default function Sidebar() {
     const router = useRouter();
     const pathname = usePathname();
     const dispatch = useDispatch();
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const { logout } = useAuth();
 
     const { isAdmin, isSales, isAuthenticated } = useRole();
+
+    console.log("Sidebar rendered with isAdmin:", isAdmin, "isSales:", isSales, "isAuthenticated:", isAuthenticated);
 
     // Hide sidebar on login page or when user is not authenticated
     if (!isAuthenticated || pathname === '/auth/login') {
@@ -93,11 +99,8 @@ export default function Sidebar() {
         return false;
     });
 
-    const handleLogout = () => {
-        if (window.confirm('Are you sure you want to logout?')) {
-            dispatch(clearUser());
-            router.push('/auth/login');
-        }
+    const handleLogout = async () => {
+        await logout(true); // Clear all data
     };
 
     return (

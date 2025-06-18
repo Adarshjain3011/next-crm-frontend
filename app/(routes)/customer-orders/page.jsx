@@ -179,7 +179,7 @@ export default function CustomersOrderPage() {
                                     <TableCell>{client.phoneNo}</TableCell>
                                     <TableCell>{client.productDescription}</TableCell>
                                     <TableCell>{client.vendors}</TableCell>
-                                    <TableCell>{client.quoteVersion}</TableCell>
+                                    <TableCell className="text-blue-600 font-medium cursor-pointer">{client.quoteVersion}</TableCell>
                                     <TableCell>{client.quoteValue}</TableCell>
                                     <TableCell>{client.gSTvalue}</TableCell>
                                     <TableCell>{client.transportation}</TableCell>

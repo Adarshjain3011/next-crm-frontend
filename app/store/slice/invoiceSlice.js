@@ -96,9 +96,12 @@ const invoiceSlice = createSlice({
             state.error = action.payload;
             state.isLoading = false;
         },
-        setLoading: (state) => {
-            state.isLoading = true;
+        setLoading: (state, action) => {
+            state.isLoading = action.payload !== undefined ? action.payload : true;
             state.error = null;
+        },
+        stopLoading: (state) => {
+            state.isLoading = false;
         }
     }
 });
@@ -110,7 +113,8 @@ export const {
     clearInvoice,
     resetToOrderData,
     setError,
-    setLoading
+    setLoading,
+    stopLoading
 } = invoiceSlice.actions;
 
 export default invoiceSlice.reducer;
