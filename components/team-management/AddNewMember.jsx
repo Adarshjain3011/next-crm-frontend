@@ -19,6 +19,8 @@ import { getAllMembersData } from "@/lib/api";
 
 import { addNewMember } from "@/app/store/slice/membersSlice";
 
+import BeautifulLoader from "@/components/common/BeautifulLoader";
+
 export default function AddNewMemberModal({ setAddNewMemberModal }) {
     const {
         register,
@@ -27,7 +29,7 @@ export default function AddNewMemberModal({ setAddNewMemberModal }) {
         handleSubmit,
     } = useForm();
 
-    const [loading,setLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const membersData = useSelector((state) => state.members.data);
     const dispatch = useDispatch();
@@ -40,16 +42,18 @@ export default function AddNewMemberModal({ setAddNewMemberModal }) {
             console.log("onSubmit data:", data);
 
             const result = await createNewUser(data);
-            
-            dispatch(addNewMember(data));
+
+            console.log("result of newly created member : ", result);
+
+            dispatch(addNewMember(result));
             setAddNewMemberModal(false);
             toast.success("Member added successfully");
         }
         catch (error) {
-            
+
             handleAxiosError(error);
         }
-        finally{
+        finally {
 
             setLoading(false);
             reset(); // Reset the form fields after submission
@@ -57,7 +61,7 @@ export default function AddNewMemberModal({ setAddNewMemberModal }) {
         }
     };
 
-    if(loading){
+    if (loading) {
 
         return (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
@@ -83,6 +87,7 @@ export default function AddNewMemberModal({ setAddNewMemberModal }) {
                     <div>
                         <Label className="block mb-1">User Name</Label>
                         <Input
+
                             {...register("name", { required: "Name is required" })}
                         />
                         {errors?.name && (
