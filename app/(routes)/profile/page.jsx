@@ -147,7 +147,7 @@ export default function ProfilePage() {
                                             <Input
                                                 id="phone"
                                                 name="phone"
-                                                value={formData.phone}
+                                                value={formData.phoneNo}
                                                 onChange={handleInputChange}
                                                 disabled={!isEditing}
                                                 className="pl-10"
