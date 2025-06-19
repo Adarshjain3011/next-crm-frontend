@@ -33,11 +33,18 @@ import { Download } from "lucide-react";
 import { useLoading } from '@/app/hooks/useLoading';
 import { InlineLoader } from '@/components/ui/loader';
 
+import { useRef } from "react";
+import { handleAxiosError } from "@/lib/handleAxiosError";
+
+import { updateEnqueryRequirement } from "@/lib/api";
+
 export default function ClientDashboardPage() {
     const { isAdmin, isSales, user } = useRole();
     const router = useRouter();
     const dispatch = useDispatch();
     const queryClient = useQueryClient();
+
+    const inputRef = useRef();
 
     const [filters, setFilters] = useState({
         email: "",
@@ -60,6 +67,8 @@ export default function ClientDashboardPage() {
         () => membersData.filter((val) => val.role === user_role.sales),
         [membersData]
     );
+
+    const [editingRequirement, setEditingRequirement] = useState({});
 
     const filteredClients = useMemo(() => {
         return clients.filter(client => {
@@ -135,26 +144,41 @@ export default function ClientDashboardPage() {
 
     let dowloadableDataForExcel = [];
 
-    filteredClients && filteredClients.forEach((data)=>{
+    filteredClients && filteredClients.forEach((data) => {
 
         let item = {
 
-            email:data.email,
-            name:data.name,
-            phone:data.phone,
-            date:formatDate(data.createdAt),
-            status:data.status,
-            assignedTo:data.assignedTo?.name || "",
-            assignedBy:data.assignedBy?.name || "",
-            assignmentDate:formatDate(data.assignmentDate),
-            sourceWebsite:data?.sourceWebsite || "",
-            sourcePlatform:data?.sourcePlatform || ""
+            email: data.email,
+            name: data.name,
+            phone: data.phone,
+            date: formatDate(data.createdAt),
+            status: data.status,
+            assignedTo: data.assignedTo?.name || "",
+            assignedBy: data.assignedBy?.name || "",
+            assignmentDate: formatDate(data.assignmentDate),
+            sourceWebsite: data?.sourceWebsite || "",
+            sourcePlatform: data?.sourcePlatform || ""
 
         }
 
         dowloadableDataForExcel.push(item);
-        
+
     });
+
+
+    async function updateClientRequirement(enqueryId) {
+        try {
+            const data = {
+                enqueryId: enqueryId,
+                updatedRequirement: editingRequirement[enqueryId],
+            };
+            await updateEnqueryRequirement(data);
+            queryClient.invalidateQueries(['clientQueries']);
+            toast.success("Requirement updated!");
+        } catch (error) {
+            handleAxiosError(error);
+        }
+    }
 
     return (
         <RoleGuard allowedRoles={[user_role.admin, user_role.sales]}>
@@ -267,7 +291,18 @@ export default function ClientDashboardPage() {
                                             <TableRow key={client._id} className="cursor-pointer">
                                                 <TableCell>{client.name}</TableCell>
                                                 <TableCell>{client.email}</TableCell>
-                                                <TableCell>{client.requirement}</TableCell>
+                                                <TableCell>
+                                                    <input
+                                                        type="text"
+                                                        value={editingRequirement[client._id] ?? client.requirement}
+                                                        className="border rounded-2xl p-2 text-wrap"
+                                                        onChange={e => setEditingRequirement(prev => ({ ...prev, [client._id]: e.target.value }))}
+                                                        onBlur={() => updateClientRequirement(client._id)}
+                                                        onKeyDown={e => {
+                                                            if (e.key === 'Enter') updateClientRequirement(client._id);
+                                                        }}
+                                                    />
+                                                </TableCell>
                                                 <TableCell>{client.sourcePlatform}</TableCell>
                                                 <TableCell>{client.phone}</TableCell>
                                                 <TableCell>{formatDate(client.createdAt)}</TableCell>
@@ -286,7 +321,7 @@ export default function ClientDashboardPage() {
 
                                                 {isAdmin ? (
                                                     <TableCell>
-                                                        <Select 
+                                                        <Select
                                                             onValueChange={(value) => handleSalesUserSelect(client._id, value)}
                                                             disabled={isAssigning}
                                                         >
