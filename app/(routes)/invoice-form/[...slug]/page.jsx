@@ -529,6 +529,8 @@ export default function InvoiceFormPage() {
               placeholder="Client ID"
               value={invoiceDataState.clientId}
               onChange={(e) => handleInputChange('clientId', e.target.value)}
+              readOnly={true}  // or false
+
             />
           </div>
           <div>
@@ -537,6 +539,7 @@ export default function InvoiceFormPage() {
               placeholder="Order ID"
               value={invoiceDataState.orderId}
               onChange={(e) => handleInputChange('orderId', e.target.value)}
+              readOnly={true}  // or false
             />
           </div>
         </CardContent>
