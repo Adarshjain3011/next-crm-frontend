@@ -7,6 +7,9 @@ import { useEffect } from 'react';
 
 export const useRole = () => {
   const user = useSelector((state) => state.user?.data);
+
+  console.log("user ka data at userole",user);
+
   const router = useRouter();
 
   useEffect(() => {

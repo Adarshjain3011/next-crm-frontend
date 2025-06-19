@@ -25,10 +25,13 @@ import { format } from 'date-fns';
 export default function ProfilePage() {
     const { user, isAdmin, isSales } = useRole();
     const [isEditing, setIsEditing] = useState(false);
+
+    console.log("user ka data at profile : ",user);
+
     const [formData, setFormData] = useState({
         name: user?.name || '',
         email: user?.email || '',
-        phone: user?.phoneNo || '',
+        phoneNo: user?.phoneNo || '',
         address: user?.address || '',
         company: user?.company || '',
         role: user?.role || '',
