@@ -16,6 +16,8 @@ import {
 
 import { useAuth } from '@/app/hooks/useAuth';
 
+import { IoNotifications } from "react-icons/io5";
+
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useDispatch } from 'react-redux';
@@ -82,6 +84,13 @@ export default function Sidebar() {
             name: 'New Enquiry',
             icon: <PlusCircle size={20} />,
             path: '/create-new-enquery',
+            roles: ['admin', 'sales'],
+        },
+        {
+
+            name: 'Notifications',
+            icon: <IoNotifications size={20} />,
+            path: '/notifications',
             roles: ['admin', 'sales'],
         },
         {

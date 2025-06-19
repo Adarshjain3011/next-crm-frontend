@@ -11,8 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { HiOutlineArrowRight } from "react-icons/hi";
-import { getAllOrders } from "@/lib/api";
-import { orderTableHeaders } from "@/lib/data";
+import { getAllOrders, updateOrderStatus } from "@/lib/api";
+import { order_status, orderTableHeaders } from "@/lib/data";
 import { formatDateForInput } from "@/lib/utils";
 import toast from "react-hot-toast";
 import { useSelector, useDispatch } from "react-redux";
@@ -27,15 +27,19 @@ import { handleAxiosError } from "@/lib/handleAxiosError";
 import UploadInvoiceCompo from "@/components/common/UploadInvoiceCompo";
 import DownloadExcelButton from "@/components/common/DownloadExcelButton";
 import { TableLoader } from '@/components/ui/loader';
+import { Changa } from 'next/font/google';
+
+import { setAllMembersData } from '@/app/store/slice/membersSlice';
+import { getAllMembersData } from '@/lib/api';
 
 export default function OrderDashboard() {
+
     const router = useRouter();
     const { isAdmin, isSales, user } = useRole();
 
     const [uploadInvoiceModal, setUploadInvoiceModal] = useState(false);
 
     const [selectedOrderData, setSelectedOrderData] = useState(null);
-
 
     const [filters, setFilters] = useState({
         name: "",
@@ -46,6 +50,7 @@ export default function OrderDashboard() {
     const dispatch = useDispatch();
     const [showVendorDetails, setShowVendorDetails] = useState(false);
     const [specificVendorData, setSpecificVendorData] = useState(null);
+
 
     // React Query for fetching orders
     const { data: orders = [], isLoading, error } = useQuery({
@@ -64,13 +69,34 @@ export default function OrderDashboard() {
 
     let membersData = useSelector((state) => state.members.data);
 
+    console.log("members data is : ", membersData);
+
     function getVendorName(vendorId) {
 
         const vendor = membersData.find((member) => member._id === vendorId);
         return vendor ? vendor.name : "Unknown Vendor";
     }
 
-    let filteredOrders = orders;
+    let filteredOrders = orders.filter(order => {
+        // Filter by name (client name)
+        const matchesName = filters.name
+            ? (order.clientId?.name || '').toLowerCase().includes(filters.name.toLowerCase())
+            : true;
+
+        // Filter by status (deliveryStatus)
+        const matchesStatus = filters.status
+            ? order.deliveryStatus === filters.status
+            : true;
+
+        // Filter by date (createdAt)
+        const matchesDate = filters.date
+            ? order.createdAt && order.createdAt.slice(0, 10) === filters.date
+            : true;
+
+        return matchesName && matchesStatus && matchesDate;
+
+    });
+
 
 
     async function generateInvoiceHandler(order) {
@@ -120,6 +146,61 @@ export default function OrderDashboard() {
         }));
     };
 
+    async function changeOrderStatus(event, orderId) {
+
+        try {
+
+            const preparedData = {
+
+                orderId: orderId,
+                status: event.target.value,
+
+            }
+
+            console.log("prepared data is : ", preparedData);
+
+            console.log("prepared data is : ", preparedData);
+
+            const result = await updateOrderStatus(preparedData);
+
+            console.log("update order status : ", result);
+
+
+        } catch (error) {
+
+            handleAxiosError(error);
+
+        }
+    }
+
+    useEffect(() => {
+
+        async function getAllUserData() {
+
+            try {
+
+                const result = await getAllMembersData();
+
+                dispatch(setAllMembersData(result));
+
+                toast.success("all user data fetched successfully");
+
+            } catch (error) {
+
+                handleAxiosError(error);
+
+            }
+
+        }
+
+        if (!membersData) {
+
+            getAllMembersData();
+
+        }
+
+    }, [])
+
     return (
         <RoleGuard allowedRoles={[user_role.admin, user_role.sales]}>
             <div className="p-6">
@@ -153,8 +234,16 @@ export default function OrderDashboard() {
                             onChange={(e) => setFilters({ ...filters, status: e.target.value })}
                         >
                             <option value="">All</option>
-                            <option value="Pending">Pending</option>
-                            <option value="Delivered">Delivered</option>
+
+                            {
+
+                                Object.values(order_status).map((order_stat, index) => (
+
+                                    <option value={order_stat}>{order_stat}</option>
+
+                                ))
+                            }
+
                         </select>
                     </div>
                     <div className="flex flex-col gap-2">
@@ -196,7 +285,7 @@ export default function OrderDashboard() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredOrders.map((order) => {
+                                    {filteredOrders && filteredOrders.map((order) => {
                                         const hasVendors = Array.isArray(order.vendorAssignments) && order.vendorAssignments.length > 0;
 
                                         if (hasVendors) {
@@ -301,13 +390,22 @@ export default function OrderDashboard() {
                                                                 rowSpan={order.vendorAssignments.length}
                                                                 className="border px-3 py-2 text-center"
                                                             >
-                                                                <Badge
-                                                                    variant={
-                                                                        order.deliveryStatus === "Delivered" ? "default" : "outline"
-                                                                    }
+                                                                <select
+                                                                    className="w-full border p-2 rounded"
+                                                                    value={order.deliveryStatus}
+                                                                    onChange={(event) => changeOrderStatus(event, order._id)}
                                                                 >
-                                                                    {order.deliveryStatus}
-                                                                </Badge>
+                                                                    {
+
+                                                                        Object.values(order_status).map((order_stat, index) => (
+
+                                                                            <option value={order_stat}>{order_stat}</option>
+
+                                                                        ))
+                                                                    }
+
+                                                                </select>
+
                                                             </td>
                                                             <td
                                                                 rowSpan={order.vendorAssignments.length}
@@ -455,8 +553,6 @@ export default function OrderDashboard() {
                         </CardContent>
                     </Card>
                 )}
-
-                {console.log("Specific vendor data is : ", specificVendorData)}
 
                 {specificVendorData && showVendorDetails && (
                     <DisplayVendorDetails
