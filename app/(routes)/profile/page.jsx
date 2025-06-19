@@ -209,7 +209,7 @@ export default function ProfilePage() {
                             </div>
 
                             {/* Activity Stats */}
-                            <div className="mt-8 pt-6 border-t border-gray-100">
+                            {/* <div className="mt-8 pt-6 border-t border-gray-100">
                                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Activity Overview</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <Card className="bg-blue-50 border-0">
@@ -237,7 +237,7 @@ export default function ProfilePage() {
                                         </CardContent>
                                     </Card>
                                 </div>
-                            </div>
+                            </div> */}
 
                             {/* {isEditing && (
                                 <div className="flex justify-end gap-3 pt-6">

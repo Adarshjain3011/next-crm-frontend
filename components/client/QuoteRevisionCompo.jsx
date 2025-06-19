@@ -135,6 +135,8 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
 
     console.log("handle save vendor changes at quotes called", versionIndex, itemIndex, vendorIdx);
 
+    // quoteId, itemIndex, vendorData,vendorIndex,isUpdate
+
     try {
       // Validate required fields
       const vendorKey = `${versionIndex}-${itemIndex}-${vendorIdx}`;
@@ -211,14 +213,19 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
         quoteId: updatedData[versionIndex]._id,
         itemIndex: itemIndex,
         vendorData: vendorData,
+        vendorIndex:vendorIdx
 
       }
+
+      console.log("prepared data is : ",preparedData);
 
       // save vendor to the quotes
 
       const result = await addNewVendorTOQuoteHandler(preparedData);
 
       console.log("result at add new vendor at quotes is ", result);
+
+      console.log("updated data that they going to update ");
 
       // Dispatch the update with the new array
       dispatch(updateVendorDataAtQuotes(updatedData));

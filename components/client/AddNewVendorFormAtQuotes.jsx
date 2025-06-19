@@ -35,7 +35,7 @@ export default function AddNewVendorForm({ setAddNewVendorModal,handleNewVendorA
                 <form onSubmit={handleSubmit(handleNewVendorAssignToEnqueryHandler)} className="space-y-4">
                     {/* Vendor Dropdown */}
                     <div>
-                        <Label className="block mb-1">Vendor</Label>
+                        <Label className="block mb-1">Vendor</Label>a
                         <select
                             {...register("vendorId", { required: "Vendor is required" })}
                             className="w-full border border-gray-300 p-2 rounded"
