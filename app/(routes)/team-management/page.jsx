@@ -76,14 +76,22 @@ export default function TeamManagement() {
   const dispatch = useDispatch();
 
   const debouncedUpdate = debounce(async (dataToUpdate, reduxDataToUpdate, dispatch, columnId) => {
+
+    console.log("data to update ", dataToUpdate);
+
     try {
+
       const result = await updateMembersData(dataToUpdate);
+      
+      toast.success("field updated successfully");
 
       if (columnId != "password") {
 
         dispatch(updateExistingMembersData(reduxDataToUpdate));
 
       }
+      
+
       else {
 
         toast.success("password updated sucessfully");
@@ -227,6 +235,20 @@ export default function TeamManagement() {
       ),
     },
     {
+
+      header: 'specialization',
+      accessorKey: 'specialization',
+      cell: ({ row, getValue }) => (
+        <EditableCell
+          row={row}
+          columnId="specialization"
+          value={getValue()}
+        />
+      ),
+
+    },
+
+    {
       header: 'Created At',
       accessorKey: 'createdAt',
       cell: ({ getValue }) => {
@@ -262,7 +284,7 @@ export default function TeamManagement() {
         return (
           <Button
             variant="destructive"
-            onClick={()=>handleDeleteUser(member._id)}
+            onClick={() => handleDeleteUser(member._id)}
           >
             Delete
           </Button>

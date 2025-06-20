@@ -22,11 +22,17 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 
+import ResetPasswordCompo from '@/components/profile/ResetPasswordCompo';
+
+
 export default function ProfilePage() {
+
     const { user, isAdmin, isSales } = useRole();
     const [isEditing, setIsEditing] = useState(false);
 
-    console.log("user ka data at profile : ",user);
+    const [resetPasswordModal, setResetPasswordModal] = useState(false);
+
+    console.log("user ka data at profile : ", user);
 
     const [formData, setFormData] = useState({
         name: user?.name || '',
@@ -52,8 +58,21 @@ export default function ProfilePage() {
         setIsEditing(false);
     };
 
+
+
     return (
         <div className="min-h-screen bg-gray-50 p-6">
+
+            {
+
+                resetPasswordModal && <ResetPasswordCompo 
+
+                    setResetPasswordModal={setResetPasswordModal}
+
+                />
+
+            }
+
             <div className="max-w-5xl mx-auto space-y-6">
                 {/* Header Section */}
                 <div className="flex justify-between items-center">
@@ -61,24 +80,39 @@ export default function ProfilePage() {
                         <h1 className="text-2xl font-bold text-gray-900">My Profile</h1>
                         <p className="text-gray-500">Manage your account settings and preferences</p>
                     </div>
-                    <Button
-                        onClick={() => setIsEditing(!isEditing)}
-                        className="flex items-center gap-2"
-                        variant={isEditing ? "destructive" : "default"}
-                    >
-                        {isEditing ? (
-                            <>
-                                <XCircle size={18} />
-                                Cancel
-                            </>
-                        ) : (
-                            <>
-                                <Edit2 size={18} />
-                                Edit Profile
-                            </>
-                        )}
-                    </Button>
+
+                    <div className='flex gap-2'>
+
+                        <Button onClick={() => {
+
+                            setResetPasswordModal(true);
+
+
+                        }}>Reset Password</Button>
+
+                        <Button
+                            onClick={() => setIsEditing(!isEditing)}
+                            className="flex items-center gap-2"
+                            variant={isEditing ? "destructive" : "default"}
+                        >
+                            {isEditing ? (
+                                <>
+                                    <XCircle size={18} />
+                                    Cancel
+                                </>
+                            ) : (
+                                <>
+                                    <Edit2 size={18} />
+                                    Edit Profile
+                                </>
+                            )}
+                        </Button>
+
+                    </div>
+
                 </div>
+
+
 
                 {/* Main Profile Card */}
                 <Card className="shadow-lg border-0">
@@ -109,7 +143,7 @@ export default function ProfilePage() {
                                 {/* Personal Information */}
                                 <div className="space-y-4">
                                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Personal Information</h3>
-                                    
+
                                     <div className="space-y-2">
                                         <Label htmlFor="name">Full Name</Label>
                                         <div className="relative">
@@ -163,7 +197,7 @@ export default function ProfilePage() {
                                 {/* Work Information */}
                                 <div className="space-y-4">
                                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Work Information</h3>
-                                    
+
                                     <div className="space-y-2">
                                         <Label htmlFor="company">Company</Label>
                                         <div className="relative">
@@ -260,8 +294,9 @@ export default function ProfilePage() {
                         </form>
                     </CardContent>
                 </Card>
+
             </div>
         </div>
     );
-} 
+}
 

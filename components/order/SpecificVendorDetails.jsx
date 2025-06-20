@@ -8,6 +8,7 @@ export default function DisplayVendorDetails({
   userName,
   email,
   role,
+  specialization,
   phoneNo,
 }) {
   return (
@@ -32,6 +33,7 @@ export default function DisplayVendorDetails({
           <DetailItem label="User Name" value={userName} />
           <DetailItem label="Email" value={email} />
           <DetailItem label="Phone Number" value={phoneNo} />
+          <DetailItem label="Specialization" value={specialization}></DetailItem>
           <DetailItem label="Role" value={role} />
         </div>
       </div>

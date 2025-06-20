@@ -70,13 +70,15 @@ export default function ClientDashboardPage() {
 
     const [editingRequirement, setEditingRequirement] = useState({});
 
+    console.log("client data : ",clients);
+
     const filteredClients = useMemo(() => {
         return clients.filter(client => {
             if (!client) return false;
 
             const emailMatch = client.email?.toLowerCase().includes(filters.email.toLowerCase()) ?? true;
             const nameMatch = client.name?.toLowerCase().includes(filters.name.toLowerCase()) ?? true;
-            const phoneMatch = client.phoneNo?.includes(filters.phone) ?? true;
+            const phoneMatch = client.phone?.includes(filters.phone) ?? true;
             const dateMatch = filters.date
                 ? new Date(client.createdAt).toLocaleDateString() === new Date(filters.date).toLocaleDateString()
                 : true;

@@ -129,22 +129,82 @@ export default function OrderDashboard() {
     }
 
     // Function to prepare order data for Excel
+
     const prepareOrderDataForExcel = () => {
-        return filteredOrders.map(order => ({
-            'Order ID': order._id,
-            'Client Name': order.clientId?.name || 'Unknown',
-            'Quote Version': order.quoteVersion,
-            'Transport Cost': order.transport || 0,
-            'Installation Cost': order.installation || 0,
-            'GST Amount': order.gstAmount || 0,
-            'Total Payable': order.totalPayable || 0,
-            'Order Value': order.orderValue || 0,
-            'Status': order.deliveryStatus,
-            'Created Date': formatDateForInput(order.createdAt),
-            'Vendors': order.vendorAssignments?.map(v => getVendorName(v.vendorId)).join(', ') || 'No Vendors',
-            'Total Vendor Orders': order.vendorAssignments?.length || 0,
-        }));
+
+        const rows = [];
+
+        filteredOrders.forEach(order => {
+
+            const baseData = {
+
+                'Order ID': order._id,
+                'Client Name': order.clientId?.name || 'Unknown',
+                'Quote Version': order.quoteVersion,
+                'Transport': order.transport || 0,
+                'Installation': order.installation || 0,
+                'GST Amount': order.gstAmount || 0,
+                'Total Payable': order.totalPayable || 0,
+                'Order Value': order.orderValue || 0,
+                'Delivery Status': order.deliveryStatus || 'N/A',
+                'Documents': order.documents?.join(', ') || 'No Documents',
+                'Updated At': formatDateForInput(order.updatedAt),
+                'Invoice Pdf Url': order.invoiceId?.invoiceExcelPdfLink || 'N/A',
+            };
+
+            const vendorAssignments = order.vendorAssignments || [];
+            const hasVendors = vendorAssignments.length > 0;
+
+            if (hasVendors) {
+                vendorAssignments.forEach(vendor => {
+                    rows.push({
+                        ...baseData,
+                        'Vendor Name': getVendorName(vendor.vendorId),
+                        'Vendor Item Ref': vendor.itemRef,
+                        'Vendor Assigned Qty': vendor.assignedQty,
+                        'Vendor Order Value': vendor.orderValue,
+                        'Vendor Advance': vendor.advancePaid,
+                        'Vendor Final Payment': vendor.finalPayment,
+                        'Vendor Status': vendor.status,
+                    });
+                });
+            } else {
+                // If no vendors, push just the base data
+                rows.push({
+                    ...baseData,
+                    'Vendor Name': 'No Vendors',
+                    'Vendor Item Ref': 'N/A',
+                    'Vendor Assigned Qty': 'N/A',
+                    'Vendor Order Value': 'N/A',
+                    'Vendor Advance': 'N/A',
+                    'Vendor Final Payment': 'N/A',
+                    'Vendor Status': 'N/A',
+                });
+            }
+
+            // Add additional rows for extra invoice links if needed
+            if (order.invoiceId?.invoiceExcelPdfLinks && Array.isArray(order.invoiceId.invoiceExcelPdfLinks)) {
+                order.invoiceId.invoiceExcelPdfLinks.forEach((link, index) => {
+                    rows.push({
+                        ...baseData,
+                        'Vendor Name': `Extra Invoice Link ${index + 1}`,
+                        'Vendor Item Ref': '',
+                        'Vendor Assigned Qty': '',
+                        'Vendor Order Value': '',
+                        'Vendor Advance': '',
+                        'Vendor Final Payment': '',
+                        'Vendor Status': '',
+                        'Invoice Pdf Url': link,
+                    });
+                });
+            }
+
+        });
+
+        return rows;
+
     };
+
 
     async function changeOrderStatus(event, orderId) {
 
@@ -201,6 +261,7 @@ export default function OrderDashboard() {
 
     }, [])
 
+
     return (
         <RoleGuard allowedRoles={[user_role.admin, user_role.sales]}>
             <div className="p-6">
@@ -214,6 +275,7 @@ export default function OrderDashboard() {
                         />
                     )}
                 </div>
+
 
                 {/* Filters Section */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 mb-6">
@@ -560,6 +622,7 @@ export default function OrderDashboard() {
                         userName={specificVendorData?.name || "N/A"}
                         email={specificVendorData?.email || "N/A"}
                         phoneNo={specificVendorData?.phoneNo || "N/A"}
+                        specialization={specificVendorData?.specialization || "N/A"}
                         role={specificVendorData?.role || "N/A"}
                     />
                 )}
