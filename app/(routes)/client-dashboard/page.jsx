@@ -39,6 +39,8 @@ import { handleAxiosError } from "@/lib/handleAxiosError";
 import { updateEnqueryRequirement } from "@/lib/api";
 
 export default function ClientDashboardPage() {
+
+
     const { isAdmin, isSales, user } = useRole();
     const router = useRouter();
     const dispatch = useDispatch();
@@ -113,6 +115,7 @@ export default function ClientDashboardPage() {
         }
     }, [dispatch, membersData.length]);
 
+    
     const handleSalesUserSelect = async (enqueryId, salesPersonId) => {
         await withLoading(async () => {
             try {
