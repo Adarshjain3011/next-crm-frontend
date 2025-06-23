@@ -29,17 +29,24 @@ import { setAllMembersData } from "@/app/store/slice/membersSlice";
 import RoleGuard from "@/components/auth/RoleGuard";
 import { useRole } from "@/app/hooks/useRole";
 import { HiOutlineArrowRight } from 'react-icons/hi';
-import { Download } from "lucide-react";
+import { Download, Link } from "lucide-react";
 import { useLoading } from '@/app/hooks/useLoading';
 import { InlineLoader } from '@/components/ui/loader';
 
 import { useRef } from "react";
 import { handleAxiosError } from "@/lib/handleAxiosError";
+import { RiDeleteBin6Line } from "react-icons/ri";
 
-import { updateEnqueryRequirement } from "@/lib/api";
+import { updateEnqueryDetails } from "@/lib/api";
+
+import DeleteConfirmationModal from "@/components/client/DeleteEnqueryConfirmationModal";
+
 
 export default function ClientDashboardPage() {
 
+    const [isRowEditing, setRowEditing] = useState(null);
+
+    const [showDeleteEnqueryModal, setShowDeleteEnqueryModal] = useState(false);
 
     const { isAdmin, isSales, user } = useRole();
     const router = useRouter();
@@ -72,7 +79,11 @@ export default function ClientDashboardPage() {
 
     const [editingRequirement, setEditingRequirement] = useState({});
 
-    console.log("client data : ",clients);
+    const [editClientDetails, setEditClientDetails] = useState({});
+
+    console.log("client data : ", clients);
+
+    // filtered clients
 
     const filteredClients = useMemo(() => {
         return clients.filter(client => {
@@ -115,7 +126,7 @@ export default function ClientDashboardPage() {
         }
     }, [dispatch, membersData.length]);
 
-    
+
     const handleSalesUserSelect = async (enqueryId, salesPersonId) => {
         await withLoading(async () => {
             try {
@@ -149,7 +160,11 @@ export default function ClientDashboardPage() {
 
     let dowloadableDataForExcel = [];
 
+    // filtered for the excel file downloading
+
     filteredClients && filteredClients.forEach((data) => {
+
+        console.log("filtered clients data is : ", data);
 
         let item = {
 
@@ -158,6 +173,7 @@ export default function ClientDashboardPage() {
             phone: data.phone,
             date: formatDate(data.createdAt),
             status: data.status,
+            requirements: data.requirement,
             assignedTo: data.assignedTo?.name || "",
             assignedBy: data.assignedBy?.name || "",
             assignmentDate: formatDate(data.assignmentDate),
@@ -170,20 +186,45 @@ export default function ClientDashboardPage() {
 
     });
 
+    // editing details on Change
 
-    async function updateClientRequirement(enqueryId) {
+    async function editingDetailsChangeHandler(e) {
+
+        const name = e.target.name;
+
+        const value = e.target.value;
+
+        setEditClientDetails({ ...editClientDetails, [name]: value });
+
+
+    }
+
+    async function applyChangesHandler(clientId) {
+
+        let finalpayload = {
+
+            ...editClientDetails,
+            clientId,
+
+        }
+
+        console.log("final payload is : ", finalpayload);
+
         try {
-            const data = {
-                enqueryId: enqueryId,
-                updatedRequirement: editingRequirement[enqueryId],
-            };
-            await updateEnqueryRequirement(data);
+
+            const result = await updateEnqueryDetails(finalpayload);
+
             queryClient.invalidateQueries(['clientQueries']);
             toast.success("Requirement updated!");
+
         } catch (error) {
+
+            console.log("error is : ", error);
             handleAxiosError(error);
+
         }
     }
+
 
     return (
         <RoleGuard allowedRoles={[user_role.admin, user_role.sales]}>
@@ -276,6 +317,7 @@ export default function ClientDashboardPage() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
+                                    <TableHead></TableHead>
                                     {dynamicHeadingNames.map((data, index) => (
                                         <TableHead key={index}>{data}</TableHead>
                                     ))}
@@ -293,37 +335,165 @@ export default function ClientDashboardPage() {
                                         const assignedPersonName = salesPersonData.find(user => user._id === client.assignedTo?._id)?.name;
 
                                         return (
+
                                             <TableRow key={client._id} className="cursor-pointer">
-                                                <TableCell>{client.name}</TableCell>
-                                                <TableCell>{client.email}</TableCell>
                                                 <TableCell>
-                                                    <input
-                                                        type="text"
-                                                        value={editingRequirement[client._id] ?? client.requirement}
-                                                        className="border rounded-2xl p-2 text-wrap"
-                                                        onChange={e => setEditingRequirement(prev => ({ ...prev, [client._id]: e.target.value }))}
-                                                        onBlur={() => updateClientRequirement(client._id)}
-                                                        onKeyDown={e => {
-                                                            if (e.key === 'Enter') updateClientRequirement(client._id);
-                                                        }}
-                                                    />
+
+                                                    <div className="flex gap-4">
+
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={isRowEditing === client._id}
+                                                            className="w-6 h-6 accent-blue-600 scale-75 cursor-pointer"
+                                                            onChange={e => {
+                                                                if (e.target.checked) {
+                                                                    setEditClientDetails({
+                                                                        name: client.name || "",
+                                                                        email: client.email || "",
+                                                                        companyName: client.companyName || "",
+                                                                        phone: client.phone || "",
+                                                                        productLink: client.productLink || "",
+                                                                        requirement: client.requirement || "",
+                                                                        sourcePlatform: client.sourcePlatform || "",
+                                                                        sourceWebsite: client.sourceWebsite || "",
+                                                                    });
+                                                                    setRowEditing(client._id);
+                                                                } else {
+                                                                    setRowEditing(null);
+                                                                    setEditClientDetails({});
+                                                                }
+                                                            }}
+                                                        />
+
+                                                        {
+
+                                                            isRowEditing === client._id && (
+
+                                                                <RiDeleteBin6Line size={25} onClick={() => {
+
+                                                                    setShowDeleteEnqueryModal(true);
+
+                                                                }}></RiDeleteBin6Line>
+
+                                                            )
+                                                        }
+
+                                                    </div>
+
                                                 </TableCell>
-                                                <TableCell>{client.sourcePlatform}</TableCell>
-                                                <TableCell>{client.phone}</TableCell>
+                                                <TableCell>
+                                                    {isRowEditing === client._id ? (
+                                                        <input
+                                                            type="text"
+                                                            name="name"
+                                                            value={editClientDetails.name}
+                                                            className="border rounded-2xl p-2 text-wrap"
+                                                            onChange={e => setEditClientDetails({ ...editClientDetails, name: e.target.value })}
+                                                        />
+                                                    ) : (
+                                                        <p>{client.name || "NA"}</p>
+                                                    )}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {isRowEditing === client._id ? (
+                                                        <input
+                                                            type="text"
+                                                            name="email"
+                                                            value={editClientDetails.email}
+                                                            className="border rounded-2xl p-2 text-wrap"
+                                                            onChange={e => setEditClientDetails({ ...editClientDetails, email: e.target.value })}
+                                                        />
+                                                    ) : (
+                                                        <p>{client.email || "NA"}</p>
+                                                    )}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {isRowEditing === client._id ? (
+                                                        <input
+                                                            type="text"
+                                                            name="requirement"
+                                                            value={editClientDetails.requirement}
+                                                            className="border rounded-2xl p-2 text-wrap"
+                                                            onChange={e => setEditClientDetails({ ...editClientDetails, requirement: e.target.value })}
+                                                        />
+                                                    ) : (
+                                                        <p>{client.requirement || "NA"}</p>
+                                                    )}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {isRowEditing === client._id ? (
+                                                        <input
+                                                            type="text"
+                                                            name="sourcePlatform"
+                                                            value={editClientDetails.sourcePlatform}
+                                                            className="border rounded-2xl p-2 text-wrap"
+                                                            onChange={e => setEditClientDetails({ ...editClientDetails, sourcePlatform: e.target.value })}
+                                                        />
+                                                    ) : (
+                                                        <p>{client.sourcePlatform || "NA"}</p>
+                                                    )}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {isRowEditing === client._id ? (
+                                                        <input
+                                                            type="text"
+                                                            name="phone"
+                                                            value={editClientDetails.phone}
+                                                            className="border rounded-2xl p-2 text-wrap"
+                                                            onChange={e => setEditClientDetails({ ...editClientDetails, phone: e.target.value })}
+                                                        />
+                                                    ) : (
+                                                        <p>{client.phone || "NA"}</p>
+                                                    )}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {isRowEditing === client._id ? (
+                                                        <input
+                                                            type="text"
+                                                            name="sourceWebsite"
+                                                            value={editClientDetails.sourceWebsite}
+                                                            className="border rounded-2xl p-2 text-wrap"
+                                                            onChange={e => setEditClientDetails({ ...editClientDetails, sourceWebsite: e.target.value })}
+                                                        />
+                                                    ) : (
+                                                        <p>{client.sourceWebsite || "NA"}</p>
+                                                    )}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {isRowEditing === client._id ? (
+                                                        <input
+                                                            type="text"
+                                                            name="productLink"
+                                                            value={editClientDetails.productLink}
+                                                            className="border rounded-2xl p-2 text-wrap"
+                                                            onChange={e => setEditClientDetails({ ...editClientDetails, productLink: e.target.value })}
+                                                        />
+                                                    ) : (
+                                                        <p>
+                                                            {
+
+                                                                client.productLink ? (
+
+                                                                    <a href={client.productLink} target="_blank">link</a>
+
+                                                                ) : "NA"
+
+                                                            }
+
+                                                        </p>
+                                                    )}
+                                                </TableCell>
                                                 <TableCell>{formatDate(client.createdAt)}</TableCell>
-                                                <TableCell>{client.sourceWebsite}</TableCell>
                                                 <TableCell>
                                                     <Badge variant={client.status === "Assigned" ? "default" : "outline"}>
                                                         {client.status}
                                                     </Badge>
                                                 </TableCell>
-
                                                 {!isAdmin && (
                                                     <TableCell>
                                                         {client.assignedBy?.name || "Not available"}
                                                     </TableCell>
                                                 )}
-
                                                 {isAdmin ? (
                                                     <TableCell>
                                                         <Select
@@ -362,14 +532,55 @@ export default function ClientDashboardPage() {
                                                         onClick={() => router.push(`/client-dashboard/${client._id}`)}
                                                     />
                                                 </TableCell>
+
+                                                {isRowEditing === client._id && (
+                                                    <TableCell colSpan={2}>
+                                                        <Button
+                                                            variant="success"
+                                                            size="sm"
+                                                            className="mr-2"
+                                                            onClick={async () => {
+                                                                await applyChangesHandler(client._id);
+                                                                setRowEditing(null);
+                                                                setEditClientDetails({});
+                                                            }}
+                                                        >
+                                                            Update
+                                                        </Button>
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            onClick={() => {
+                                                                setRowEditing(null);
+                                                                setEditClientDetails({});
+                                                            }}
+                                                        >
+                                                            Cancel
+                                                        </Button>
+                                                    </TableCell>
+                                                )}
+
                                             </TableRow>
+
                                         );
                                     })
                                 )}
                             </TableBody>
                         </Table>
+                        {
+
+                            showDeleteEnqueryModal && <DeleteConfirmationModal
+
+                                onClose={()=>setShowDeleteEnqueryModal(false)}
+                                enquiryDetails={editClientDetails}
+                                clientId = {isRowEditing}
+                                queryClient = {queryClient}
+                            />
+                        }
                     </CardContent>
                 </Card>
+
+
             </div>
         </RoleGuard>
     );

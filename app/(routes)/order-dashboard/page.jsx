@@ -137,7 +137,6 @@ export default function OrderDashboard() {
         filteredOrders.forEach(order => {
 
             const baseData = {
-
                 'Order ID': order._id,
                 'Client Name': order.clientId?.name || 'Unknown',
                 'Quote Version': order.quoteVersion,
@@ -151,6 +150,13 @@ export default function OrderDashboard() {
                 'Updated At': formatDateForInput(order.updatedAt),
                 'Invoice Pdf Url': order.invoiceId?.invoiceExcelPdfLink || 'N/A',
             };
+
+            // Conditionally add a key
+            if (order.invoiceId?.invoiceExcelPdfLink) {
+
+                baseData["Invoice Excel Link"] = order.invoiceId.invoiceExcelPdfLink;
+
+            }
 
             const vendorAssignments = order.vendorAssignments || [];
             const hasVendors = vendorAssignments.length > 0;
@@ -325,7 +331,7 @@ export default function OrderDashboard() {
                 {error && (
                     <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
                         <strong className="font-bold">Error: </strong>
-                        <span className="block sm:inline">{error.message}</span>
+                        <span className="block sm:inline">{error.message}</span>c
                     </div>
                 )}
 
