@@ -41,6 +41,8 @@ import RoleGuard from '@/components/auth/RoleGuard';
 import { user_role } from '@/lib/data';
 import { TableLoader } from '@/components/ui/loader';
 
+import { payment_status } from '@/lib/data';
+
 export default function AllInvoicesPage() {
   const router = useRouter();
   const [invoices, setInvoices] = useState([]);
@@ -72,11 +74,22 @@ export default function AllInvoicesPage() {
   // Calculate statistics
   const calculateStats = () => {
     const total = filteredInvoices.reduce((sum, inv) => sum + (Number(inv.totalAmount) || 0), 0);
-    const paid = filteredInvoices.filter(inv => inv.status === 'PAID').length;
-    const pending = filteredInvoices.filter(inv => inv.status === 'PENDING').length;
-    const draft = filteredInvoices.filter(inv => !inv.status || inv.status === 'DRAFT').length;
-
-    return { total, paid, pending, draft };
+    const paid = filteredInvoices.filter(inv => (inv.paymentStatus || '').toLowerCase() === 'paid').length;
+    const pending = filteredInvoices.filter(inv => (inv.paymentStatus || '').toLowerCase() === 'pending').length;
+    const draft = filteredInvoices.filter(inv => !inv.paymentStatus || (inv.paymentStatus || '').toLowerCase() === 'draft').length;
+    const totalInvoices = filteredInvoices.length;
+    // Find latest invoice by date
+    let latestInvoice = null;
+    if (filteredInvoices.length > 0) {
+      latestInvoice = filteredInvoices.reduce((latest, inv) => {
+        if (!latest) return inv;
+        const latestDate = new Date(latest.invoiceDate || 0);
+        const invDate = new Date(inv.invoiceDate || 0);
+        return invDate > latestDate ? inv : latest;
+      }, null);
+    }
+    const average = filteredInvoices.length > 0 ? (total / filteredInvoices.length) : 0;
+    return { total, paid, pending, draft, totalInvoices, latestInvoice, average };
   };
 
   // Handle search and filters
@@ -94,7 +107,9 @@ export default function AllInvoicesPage() {
 
     // Apply status filter
     if (statusFilter !== 'all') {
-      filtered = filtered.filter(invoice => invoice.status === statusFilter);
+      console.log("filtered data  : ",filtered);
+      console.log("status Filter data : ",statusFilter);
+      filtered = filtered.filter(invoice => invoice.paymentStatus === statusFilter);
     }
 
     // Apply sorting
@@ -139,12 +154,11 @@ export default function AllInvoicesPage() {
   }
 
   return (
-
     <RoleGuard allowedRoles={[user_role.admin]}>
-
       <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
+          {/* Total Revenue */}
           <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
@@ -158,7 +172,21 @@ export default function AllInvoicesPage() {
               </div>
             </CardContent>
           </Card>
-
+          {/* Total Invoices */}
+          <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Total Invoices</p>
+                  <h3 className="text-2xl font-bold text-indigo-600">{stats.totalInvoices}</h3>
+                </div>
+                <div className="p-3 bg-indigo-100 rounded-full">
+                  <FileText className="w-6 h-6 text-indigo-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          {/* Paid Invoices */}
           <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
@@ -172,7 +200,7 @@ export default function AllInvoicesPage() {
               </div>
             </CardContent>
           </Card>
-
+          {/* Pending Invoices */}
           <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
@@ -186,17 +214,34 @@ export default function AllInvoicesPage() {
               </div>
             </CardContent>
           </Card>
-
+          {/* Average Invoice Value */}
           <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Draft Invoices</p>
-                  <h3 className="text-2xl font-bold text-gray-600">{stats.draft}</h3>
+                  <p className="text-sm font-medium text-gray-500">Avg. Invoice Value</p>
+                  <h3 className="text-2xl font-bold text-purple-600">₹{stats.average.toLocaleString(undefined, {maximumFractionDigits: 2})}</h3>
                 </div>
-                <div className="p-3 bg-gray-100 rounded-full">
-                  <AlertCircle className="w-6 h-6 text-gray-600" />
+                <div className="p-3 bg-purple-100 rounded-full">
+                  <DollarSign className="w-6 h-6 text-purple-600" />
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+          {/* Latest Invoice */}
+          <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
+            <CardContent className="pt-6">
+              <div className="flex flex-col gap-1">
+                <p className="text-sm font-medium text-gray-500">Latest Invoice</p>
+                {stats.latestInvoice ? (
+                  <>
+                    <span className="text-base font-semibold text-gray-900">{stats.latestInvoice.invoiceNumber}</span>
+                    <span className="text-xs text-gray-500">{stats.latestInvoice.buyerName}</span>
+                    <span className="text-xs text-gray-400">{stats.latestInvoice.invoiceDate ? format(new Date(stats.latestInvoice.invoiceDate), 'dd/MM/yyyy') : '-'}</span>
+                  </>
+                ) : (
+                  <span className="text-xs text-gray-400">No invoices</span>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -214,7 +259,6 @@ export default function AllInvoicesPage() {
               {/* Search and Filters */}
               <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
                 <div className="relative w-full sm:w-[300px]">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
                   <Input
                     placeholder="Search invoices..."
                     className="pl-8 bg-gray-50 border-gray-200"
@@ -223,17 +267,21 @@ export default function AllInvoicesPage() {
                   />
                 </div>
 
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value)}>
                   <SelectTrigger className="w-[180px] bg-white">
                     <SelectValue placeholder="Filter by status" />
                   </SelectTrigger>
+
                   <SelectContent>
                     <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="PAID">Paid</SelectItem>
-                    <SelectItem value="PENDING">Pending</SelectItem>
-                    <SelectItem value="DRAFT">Draft</SelectItem>
+                    {payment_status.map((data) => (
+                      <SelectItem key={data} value={data}>
+                        {data}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
+
               </div>
             </div>
           </CardHeader>
@@ -288,10 +336,10 @@ export default function AllInvoicesPage() {
                         <TableCell>₹{invoice.totalAmount?.toLocaleString() || '0'}</TableCell>
                         <TableCell>
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${invoice.status === 'PAID' ? 'bg-green-100 text-green-800' :
-                              invoice.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-                                'bg-gray-100 text-gray-800'
+                            invoice.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-gray-100 text-gray-800'
                             }`}>
-                            {invoice.status || 'DRAFT'}
+                            {invoice.paymentStatus || 'DRAFT'}
                           </span>
                         </TableCell>
                         <TableCell>
@@ -323,9 +371,7 @@ export default function AllInvoicesPage() {
           </CardContent>
         </Card>
       </div>
-
     </RoleGuard>
-
   );
 }
 

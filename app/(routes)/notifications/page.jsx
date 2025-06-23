@@ -39,83 +39,6 @@ const typeIcon = {
   error: <IoCloseCircle className="text-red-500" size={22} />,
 };
 
-
-// const notificationData = [
-//   {
-//     "_id": "6855409cf031ebd72c21e680",
-//     "title": "New Client Inquiry Received",
-//     "message": "A new inquiry has been submitted by Adarsh jain from Afma technology  regarding \"10 cafe tables and 10 chairs \".",
-//     "recipientId": {
-//       "_id": "683b16ba4c02e7f4d5e09750",
-//       "name": "Sadiq"
-//     },
-//     "isRead": false,
-//     "createdAt": "2025-06-20T11:06:04.814Z",
-//     "__v": 0
-//   },
-//   {
-//     "_id": "6855409cf031ebd72c21e681",
-//     "title": "Quotation Sent",
-//     "message": "Quotation has been sent to Mr. Ravi from Infotech Ltd for the requirement: \"Modular workstations for 25 employees\".",
-//     "recipientId": {
-//       "_id": "683b16ba4c02e7f4d5e09751",
-//       "name": "Neha"
-//     },
-//     "isRead": false,
-//     "createdAt": "2025-06-20T12:15:00.000Z",
-//     "__v": 0
-//   },
-//   {
-//     "_id": "6855409cf031ebd72c21e682",
-//     "title": "Follow-up Reminder",
-//     "message": "Reminder to follow up with Aman Sharma from Startech Corp about pending feedback on proposal.",
-//     "recipientId": {
-//       "_id": "683b16ba4c02e7f4d5e09752",
-//       "name": "Zahid"
-//     },
-//     "isRead": true,
-//     "createdAt": "2025-06-19T15:30:45.345Z",
-//     "__v": 0
-//   },
-//   {
-//     "_id": "6855409cf031ebd72c21e683",
-//     "title": "Client Call Scheduled",
-//     "message": "A client call with Meena from DesignMatrix Pvt. Ltd has been scheduled for 3 PM tomorrow.",
-//     "recipientId": {
-//       "_id": "683b16ba4c02e7f4d5e09753",
-//       "name": "Ali"
-//     },
-//     "isRead": false,
-//     "createdAt": "2025-06-20T08:50:10.000Z",
-//     "__v": 0
-//   },
-//   {
-//     "_id": "6855409cf031ebd72c21e684",
-//     "title": "Inquiry Closed",
-//     "message": "Inquiry from Rahul Singh regarding \"20 office chairs\" has been marked as closed.",
-//     "recipientId": {
-//       "_id": "683b16ba4c02e7f4d5e09754",
-//       "name": "Simran"
-//     },
-//     "isRead": true,
-//     "createdAt": "2025-06-18T10:22:00.000Z",
-//     "__v": 0
-//   },
-//   {
-//     "_id": "6855409cf031ebd72c21e685",
-//     "title": "New Client Inquiry Received",
-//     "message": "A new inquiry has been submitted by Anjali from BuildCorp regarding \"Reception desk and seating area\".",
-//     "recipientId": {
-//       "_id": "683b16ba4c02e7f4d5e09755",
-//       "name": "Rohit"
-//     },
-//     "isRead": false,
-//     "createdAt": "2025-06-20T13:40:22.900Z",
-//     "__v": 0
-//   }
-// ]
-
-
 const NotificationPage = () => {
 
   // const [notifications, setNotifications] = useState([]);
@@ -135,16 +58,6 @@ const NotificationPage = () => {
 
   console.log("user data is : ", user);
 
-  const markAsRead = (id) => {
-    // setNotifications((prev) =>
-    //   prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    // );
-  };
-
-  const deleteNotification = (id) => {
-    // setNotifications((prev) => prev.filter((n) => n.id !== id));
-  };
-
   async function fetchAllNotificationsData() {
     try {
       const result = await getAllNotification();
@@ -152,20 +65,10 @@ const NotificationPage = () => {
       console.log("result is :", result);
 
       if (Array.isArray(result)) {
-        const mapped = result.map((apiNotification) => ({
-          id: apiNotification._id,
-          type: 'info', // Default type, or infer if available
-          title: apiNotification.title,
-          message: apiNotification.message,
-          time: dayjs(apiNotification.createdAt).fromNow(),
-          read: apiNotification.isRead,
-          recipientId: apiNotification.recipientId,
-        }));
-        // setNotifications(mapped);
 
-        console.log("fetched result is : ", mapped);
+        console.log("result is : ",result);
 
-        return mapped;
+        return result;
 
       }
     } catch (error) {
@@ -194,37 +97,6 @@ const NotificationPage = () => {
     }
 
   })
-
-  console.log("all notfication at useQuery : ", notifications);
-
-
-
-  // useEffect(() => {
-
-  // async function fetchAllNotificationsData() {
-  //   try {
-  //     const result = await getAllNotification();
-  //     if (Array.isArray(result)) {
-  //       const mapped = result.map((apiNotification) => ({
-  //         id: apiNotification._id,
-  //         type: 'info', // Default type, or infer if available
-  //         title: apiNotification.title,
-  //         message: apiNotification.message,
-  //         time: dayjs(apiNotification.createdAt).fromNow(),
-  //         read: apiNotification.isRead,
-  //         recipientId: apiNotification.recipientId,
-  //       }));
-  //       setNotifications(mapped);
-  //     }
-  //   } catch (error) {
-  //     console.log("error is : ", error);
-  //     handleAxiosError(error);
-  //   }
-  // }
-  // fetchAllNotificationsData();
-
-  // }, []);
-
 
 
   useEffect(() => {
@@ -258,7 +130,9 @@ const NotificationPage = () => {
       ? new Date(data.createdAt).toLocaleDateString() === new Date(filters.date).toLocaleDateString()
       : true;
 
-    const userMatch = filters.user ? filters.user === data.recipientId : true;
+    console.log("data at the created at : ",data);
+
+    const userMatch = filters.user ? filters.user === data.recipientId._id : true;
 
     return dateMatch && userMatch;
 
@@ -350,9 +224,6 @@ const NotificationPage = () => {
                   <div className="flex items-center gap-3">
                     {/* Type icon */}
                     <span>{typeIcon[notification.type]}</span>
-                    {/* <Badge variant={badgeVariant[notification.type]} className="text-xs px-3 py-1">
-                      {notification.type.charAt(0).toUpperCase() + notification.type.slice(1)}
-                    </Badge> */}
                     <CardTitle className="ml-2 text-lg font-semibold">
                       {notification.title}
                     </CardTitle>
@@ -360,23 +231,13 @@ const NotificationPage = () => {
                       <div className="ml-2 text-xs text-blue-600 font-medium mt-1">Belongs to: {notification.recipientId.name}</div>
                     )}
                   </div>
-                  <span className="text-xs text-muted-foreground whitespace-nowrap font-medium">{notification.time}</span>
+                  <span className="text-xs text-muted-foreground whitespace-nowrap font-medium">{dayjs(notification.createdAt).fromNow()}</span>
                 </CardHeader>
                 <CardContent className="px-0 pt-1 pb-0">
                   <CardDescription className="text-base text-gray-700">
                     {notification.message}
                   </CardDescription>
                 </CardContent>
-                {/* <CardFooter className="flex gap-2 sm:gap-3 justify-end px-0 pt-2">
-                  {!notification.read && (
-                    <Button size="icon" variant="ghost" className="text-blue-600 hover:bg-blue-50" title="Mark as Read" onClick={() => markAsRead(notification.id)}>
-                      <IoCheckmarkDone size={20} />
-                    </Button>
-                  )}
-                  <Button size="icon" variant="ghost" className="text-red-500 hover:bg-red-50" title="Delete" onClick={() => deleteNotification(notification.id)}>
-                    <IoTrash size={20} />
-                  </Button>
-                </CardFooter> */}
 
               </Card>
             ))}

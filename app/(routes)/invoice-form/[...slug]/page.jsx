@@ -19,7 +19,7 @@ import { InlineLoader } from '@/components/ui/loader';
 
 import {
 
-  
+
   getInvoiceDetails,
   createNewInvoice,
   updateInvoiceData,
@@ -30,6 +30,7 @@ import {
 
 import { handleAxiosError } from '@/lib/handleAxiosError';
 import GeneratePDFButton from '@/components/invoice/GeneratePdfButton';
+import { payment_status } from '@/lib/data';
 
 export default function InvoiceFormPage() {
   const router = useRouter();
@@ -47,7 +48,9 @@ export default function InvoiceFormPage() {
     totalAmount: 0,
     invoiceDate: new Date().toISOString().split('T')[0],
     dueDate: '',
-    buyerWorkOrderDate: ''
+    paymentStatus:'',
+    buyerWorkOrderDate: '',
+
   });
   const [taxData, setTaxData] = useState({
     "cgstAmount": false,
@@ -468,7 +471,7 @@ export default function InvoiceFormPage() {
 
   const handleDeleteInvoice = async () => {
 
-    console.log("handleDeleteInvoice called",invoiceDataState._id);
+    console.log("handleDeleteInvoice called", invoiceDataState._id);
 
     if (!invoiceDataState._id) {
       toast.error("No invoice to delete");
@@ -790,7 +793,34 @@ export default function InvoiceFormPage() {
         <CardHeader>
           <CardTitle>Payment Terms & Notes</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex flex-col gap-3">
+
+          {/*  payments status  */}
+
+          <div className="flex flex-col gap-2">
+            <label htmlFor="paymentStatus" className="text-sm font-medium text-gray-700">
+              Payment Status
+            </label>
+
+            <select
+              name="paymentStatus"
+              id="paymentStatus"
+              className="px-4 py-2 border border-gray-300 rounded-lg shadow-sm
+               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                bg-white text-gray-800"
+              value={invoiceDataState.paymentStatus}
+                onChange={(e) => handleInputChange('paymentStatus',e.target.value)}
+            >
+              {payment_status.map((status, index) => (
+                <option key={index} value={status}>
+                  {status}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* payment terms  */}
+
           <div>
             <Label>Payment Terms</Label>
             <Textarea
@@ -800,6 +830,9 @@ export default function InvoiceFormPage() {
               onChange={(e) => handleInputChange('paymentTerms', e.target.value)}
             />
           </div>
+
+          {/* notes  */}
+
           <div>
             <Label>Notes</Label>
             <Textarea
@@ -848,15 +881,6 @@ export default function InvoiceFormPage() {
             >
               {isUpdating ? (<><InlineLoader className="mr-2" /> Updating...</>) : 'Update Invoice'}
             </Button>
-
-            {/* <Button
-              variant="destructive"
-              className="w-full"
-              onClick={handleDeleteInvoice}
-              disabled={isDeleting}
-            >
-              {isDeleting ? (<><InlineLoader className="mr-2" /> Deleting...</>) : 'Delete Invoice'}
-            </Button> */}
 
           </div>
         ) : (
