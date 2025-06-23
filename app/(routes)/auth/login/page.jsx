@@ -48,7 +48,7 @@ export default function Login() {
         <div>
           <div className="mb-8">
             <Image
-              src="/logo.png"
+              src="https://www.mayuriinternational.com/images/logo.png"
               alt="Mayuri International"
               width={180}
               height={60}

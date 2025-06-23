@@ -107,8 +107,8 @@ export default function AllInvoicesPage() {
 
     // Apply status filter
     if (statusFilter !== 'all') {
-      console.log("filtered data  : ",filtered);
-      console.log("status Filter data : ",statusFilter);
+      console.log("filtered data  : ", filtered);
+      console.log("status Filter data : ", statusFilter);
       filtered = filtered.filter(invoice => invoice.paymentStatus === statusFilter);
     }
 
@@ -160,70 +160,78 @@ export default function AllInvoicesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
           {/* Total Revenue */}
           <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Total Revenue</p>
-                  <h3 className="text-2xl font-bold text-gray-900">₹{stats.total.toLocaleString()}</h3>
-                </div>
+            <CardContent className="pt-1">
+              <div className="flex flex-col gap-3 items-center justify-between">
                 <div className="p-3 bg-blue-100 rounded-full">
                   <DollarSign className="w-6 h-6 text-blue-600" />
                 </div>
+
+                <div className='flex flex-col'>
+                  <p className="text-sm font-medium text-gray-500">Total Revenue</p>
+                  <h3 className="text-2xl font-bold text-gray-900">₹{stats.total.toLocaleString()}</h3>
+                </div>
+
               </div>
             </CardContent>
           </Card>
           {/* Total Invoices */}
           <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Total Invoices</p>
-                  <h3 className="text-2xl font-bold text-indigo-600">{stats.totalInvoices}</h3>
-                </div>
+            <CardContent className="pt-2">
+              <div className="flex flex-col gap-3 items-center justify-center">
                 <div className="p-3 bg-indigo-100 rounded-full">
                   <FileText className="w-6 h-6 text-indigo-600" />
+                </div>
+
+                <div className=' flex flex-col'>
+                  <p className="text-sm font-medium text-gray-500">Total Invoices</p>
+                  <h3 className="text-2xl text-center font-bold text-indigo-600">{stats.totalInvoices}</h3>
                 </div>
               </div>
             </CardContent>
           </Card>
           {/* Paid Invoices */}
           <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Paid Invoices</p>
-                  <h3 className="text-2xl font-bold text-green-600">{stats.paid}</h3>
-                </div>
+            <CardContent className="pt-2">
+              <div className="flex flex-col gap-3 items-center justify-between">
+
                 <div className="p-3 bg-green-100 rounded-full">
                   <FileCheck className="w-6 h-6 text-green-600" />
+                </div>
+
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Paid Invoices</p>
+                  <h3 className="text-2xl font-bold text-green-600 text-center">{stats.paid}</h3>
                 </div>
               </div>
             </CardContent>
           </Card>
           {/* Pending Invoices */}
           <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Pending Invoices</p>
-                  <h3 className="text-2xl font-bold text-yellow-600">{stats.pending}</h3>
-                </div>
+            <CardContent className="pt-2">
+              <div className="flex flex-col gap-3 items-center justify-center">
                 <div className="p-3 bg-yellow-100 rounded-full">
                   <Clock className="w-6 h-6 text-yellow-600" />
+                </div>
+
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Pending Invoices</p>
+                  <h3 className="text-2xl font-bold text-yellow-600 text-center">{stats.pending}</h3>
                 </div>
               </div>
             </CardContent>
           </Card>
           {/* Average Invoice Value */}
           <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Avg. Invoice Value</p>
-                  <h3 className="text-2xl font-bold text-purple-600">₹{stats.average.toLocaleString(undefined, {maximumFractionDigits: 2})}</h3>
-                </div>
+            <CardContent className="pt-2">
+              <div className="flex flex-col gap-3 items-center justify-center ">
+
                 <div className="p-3 bg-purple-100 rounded-full">
                   <DollarSign className="w-6 h-6 text-purple-600" />
+                </div>
+
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Avg. Invoice Value</p>
+                  <h3 className="text-2xl font-bold text-purple-600">₹{stats.average.toLocaleString(undefined, { maximumFractionDigits: 2 })}</h3>
                 </div>
               </div>
             </CardContent>
