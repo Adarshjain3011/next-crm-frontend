@@ -104,13 +104,9 @@ export default function createNewEnquery() {
 
                             type="text"
                             placeholder="Enter Company Name"
-                            {...register("companyName", { required: "Company Name is required" })}
+                            {...register("companyName",)}
 
                         />
-                        {
-
-                            errors.companyName && <p className="text-red-500">{errors.companyName.message}</p>
-                        }
 
                     </div>
 
@@ -161,18 +157,11 @@ export default function createNewEnquery() {
 
                             type="text"
                             placeholder="Enter Address"
-                            {...register("address", { required: "Phone No is required" })}
+                            {...register("address",)}
 
                         />
-                        {
-
-                            errors.address && <p className="teaxt-red-500">{errors.address.message}</p>
-                        }
-
 
                     </div>
-
-
 
                     <div className="flex flex-col gap-2">
 
@@ -226,7 +215,7 @@ export default function createNewEnquery() {
 
                             type="text"
                             placeholder="Enter Source Platform"
-                            {...register("sourcePlatform", { required: "source Platform is required" })}
+                            {...register("sourcePlatform")}
 
                         />
 

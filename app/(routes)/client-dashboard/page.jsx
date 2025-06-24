@@ -42,6 +42,8 @@ import { updateEnqueryDetails } from "@/lib/api";
 import DeleteConfirmationModal from "@/components/client/DeleteEnqueryConfirmationModal";
 
 
+
+
 export default function ClientDashboardPage() {
 
     const [isRowEditing, setRowEditing] = useState(null);
@@ -64,11 +66,18 @@ export default function ClientDashboardPage() {
         salesPerson: "",
     });
 
+
     const { data: clients = [] } = useQuery({
         queryKey: ['clientQueries'],
         queryFn: fetchAllUserQueries,
         staleTime: 1000 * 60 * 5,
         cacheTime: 1000 * 60 * 30,
+        refetchInterval: 1000 * 5,     // ✅ Refetch every 30 seconds
+        enabled: true,
+        onError: (error) => {
+            console.error("Error fetching orders:", error);
+            toast.error("Failed to fetch orders");
+        }
     });
 
     const membersData = useSelector((state) => state.members.data) || [];
@@ -198,6 +207,8 @@ export default function ClientDashboardPage() {
 
 
     }
+
+    
 
     async function applyChangesHandler(clientId) {
 
@@ -571,10 +582,10 @@ export default function ClientDashboardPage() {
 
                             showDeleteEnqueryModal && <DeleteConfirmationModal
 
-                                onClose={()=>setShowDeleteEnqueryModal(false)}
+                                onClose={() => setShowDeleteEnqueryModal(false)}
                                 enquiryDetails={editClientDetails}
-                                clientId = {isRowEditing}
-                                queryClient = {queryClient}
+                                clientId={isRowEditing}
+                                queryClient={queryClient}
                             />
                         }
                     </CardContent>

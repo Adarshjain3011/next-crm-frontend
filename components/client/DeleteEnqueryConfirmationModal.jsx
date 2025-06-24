@@ -45,6 +45,7 @@ export default function DeleteConfirmationModal({ onClose, enquiryDetails,client
           Are you sure you want to permanently delete the enquiry from <span className="font-semibold">{enquiryDetails?.companyName}</span> regarding <span className="italic">"{enquiryDetails?.requirement}"</span>?<br />
           <span className="text-sm text-red-500">This action cannot be undone.</span>
         </p>
+        
 
         <div className="flex justify-end gap-4">
           <button

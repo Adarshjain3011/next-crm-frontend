@@ -21,18 +21,29 @@ import {
     XCircle
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 import ResetPasswordCompo from '@/components/profile/ResetPasswordCompo';
+import { FiPlusCircle } from "react-icons/fi";
 
+import UserAvatar from '@/components/profile/UserAvtar';
+
+import { useDispatch } from 'react-redux';
+import { handleAxiosError } from '@/lib/handleAxiosError';
+import axios from '@/app/providers/axiosCall';
+
+import { setUserData } from '@/app/store/slice/salesPersonData';
 
 export default function ProfilePage() {
 
     const { user, isAdmin, isSales } = useRole();
     const [isEditing, setIsEditing] = useState(false);
 
+    const dispatch = useDispatch();
+
     const [resetPasswordModal, setResetPasswordModal] = useState(false);
 
-    console.log("user ka data at profile : ", user);
+    console.log("user data at the profile ", user);
 
     const [formData, setFormData] = useState({
         name: user?.name || '',
@@ -43,6 +54,13 @@ export default function ProfilePage() {
         role: user?.role || '',
         joinDate: user?.joinDate || new Date(),
     });
+
+    // Add state for image preview
+    const [avatarPreview, setAvatarPreview] = useState(user?.userImage || '');
+    // Add state for selected file
+    const [selectedAvatarFile, setSelectedAvatarFile] = useState(null);
+    // Add state for modal
+    const [isImageModalOpen, setIsImageModalOpen] = useState(false);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -58,6 +76,46 @@ export default function ProfilePage() {
         setIsEditing(false);
     };
 
+    // Handler for image selection
+    const handleImageSelect = (file) => {
+        if (file) {
+            const previewURL = URL.createObjectURL(file);
+            setAvatarPreview(previewURL);
+            setSelectedAvatarFile(file);
+        }
+    };
+
+    // Handler for uploading the image
+    const handleUploadAvatar = async () => {
+        if (!selectedAvatarFile) return;
+
+        try {
+
+            const formData = new FormData();
+
+            formData.append("file", selectedAvatarFile);
+
+            const result = await axios.post("/user/updateUserImage", formData);
+
+            console.log("result is : ", result);
+
+            dispatch(setUserData(result.data.data));
+
+        } catch (error) {
+
+            console.log("error is : ", error);
+            handleAxiosError(error);
+
+        }
+        finally {
+
+            setSelectedAvatarFile(null); // Reset after upload
+
+        }
+    };
+
+
+
 
 
     return (
@@ -65,7 +123,7 @@ export default function ProfilePage() {
 
             {
 
-                resetPasswordModal && <ResetPasswordCompo 
+                resetPasswordModal && <ResetPasswordCompo
 
                     setResetPasswordModal={setResetPasswordModal}
 
@@ -118,12 +176,55 @@ export default function ProfilePage() {
                 <Card className="shadow-lg border-0">
                     <CardHeader className="border-b border-gray-100 bg-white rounded-t-xl">
                         <div className="flex items-center gap-6">
-                            <Avatar className="h-24 w-24 ring-4 ring-blue-50">
-                                <AvatarImage src={user?.avatar || '/default-avatar.png'} />
-                                <AvatarFallback className="text-2xl bg-blue-600 text-white">
-                                    {user?.name?.charAt(0) || 'U'}
-                                </AvatarFallback>
-                            </Avatar>
+
+                            <div>
+
+                                {/* Avatar with click to open modal */}
+                                <UserAvatar
+                                    user={{ ...user, avatar: avatarPreview }}
+                                    onImageSelect={handleImageSelect}
+                                    onAvatarClick={() => setIsImageModalOpen(true)}
+                                />
+
+                                {/* Image Modal */}
+                                <Dialog open={isImageModalOpen} onOpenChange={setIsImageModalOpen}>
+                                    <DialogContent className="flex flex-col items-center max-w-xl">
+                                        <img
+                                            src={avatarPreview || '/default-avatar.png'}
+                                            alt="Profile Preview"
+                                            className="rounded-lg max-h-[60vh] max-w-full object-contain border"
+                                        />
+                                    </DialogContent>
+                                </Dialog>
+
+                                {/* Show Upload button if a new image is selected */}
+
+                                {selectedAvatarFile && (
+
+                                    <div className='flex gap-2'>
+
+                                        <Button className="mt-2" onClick={handleUploadAvatar} type="button">
+                                            Upload
+                                        </Button>
+
+                                        <Button className="mt-2" type="button" onClick={() => {
+
+                                            setSelectedAvatarFile(null);
+
+                                            setAvatarPreview(user?.userImage);
+
+
+                                        }}>
+                                            Cancel
+                                        </Button>
+
+                                    </div>
+
+                                )}
+
+                            </div>
+
+
                             <div>
                                 <CardTitle className="text-2xl mb-2">{user?.name}</CardTitle>
                                 <div className="flex items-center gap-3">
