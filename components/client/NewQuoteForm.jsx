@@ -61,7 +61,6 @@ let type_of_item_changes = {
 
 export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModal, addNewQuotation, client }) {
 
-    console.log("add new quotation ke andar client is ", dummyData, setAddNewQuoteFormModal, addNewQuotation, client);
 
     // we have to filter out the things on the basis of the version
 

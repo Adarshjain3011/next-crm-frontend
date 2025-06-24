@@ -36,6 +36,10 @@ import { SectionLoader } from '@/components/ui/loader';
 
 
 export default function QuoteRivisionComponent({ dummyData, client, setClient, enquiryData, enqueryId }) {
+
+  console.log("dummy data is : ", dummyData);
+
+
   const dispatch = useDispatch();
   const { data: reduxQuoteData, loading, error } = useSelector((state) => state.quote);
   const membersData = useSelector((state) => state.members.data);
@@ -213,11 +217,11 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
         quoteId: updatedData[versionIndex]._id,
         itemIndex: itemIndex,
         vendorData: vendorData,
-        vendorIndex:vendorIdx
+        vendorIndex: vendorIdx
 
       }
 
-      console.log("prepared data is : ",preparedData);
+      console.log("prepared data is : ", preparedData);
 
       // save vendor to the quotes
 
@@ -416,7 +420,7 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
     }
   };
 
-  
+
 
   const handleStatusChange = async (quoteId, newStatus) => {
     try {
@@ -441,8 +445,8 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
   };
 
   return (
-    <div className="w-screen max-w-[96%] overflow-x-scroll">
 
+    <div className="w-screen max-w-[96%] overflow-x-scroll">
 
       <div className='flex justify-between items-center'>
         <h2 className="text-xl font-bold mb-3">Quote Revisions</h2>
@@ -704,7 +708,6 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
 
                         </td>
 
-                        
 
                         <td className="border px-3 py-2 flex gap-3">
                           {isEditing ? (
@@ -715,6 +718,7 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
                           <Button className="bg-slate-600 rounded-full p-2" onClick={() => handleDeleteVendorAtQuotes(vendor.vendorId, itemIdx, quoteIdx)}>
                             Delete
                           </Button>
+
                         </td>
 
                         {vendorIdx === 0 && (

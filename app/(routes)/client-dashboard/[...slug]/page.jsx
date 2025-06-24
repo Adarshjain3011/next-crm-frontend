@@ -41,10 +41,10 @@ export default function Clients() {
   const queryClient = useQueryClient();
   const { slug } = useParams();
   const dispatch = useDispatch();
-  
+
   // Initialize state first
   const [client, setClient] = useState(null);
-  
+
   // Memoize the removed fields to prevent unnecessary recalculations
   const removedFields = useMemo(() => [
     "_id",
@@ -63,6 +63,12 @@ export default function Clients() {
     queryFn: fetchAllUserQueries,
     staleTime: 1000 * 60 * 5,
     cacheTime: 1000 * 60 * 30,
+    refetchInterval: 1000 * 5,     // ✅ Refetch every 30 seconds
+    enabled: true,
+    onError: (error) => {
+      console.error("Error fetching orders:", error);
+      toast.error("Failed to fetch orders");
+    }
   });
 
   // Query for quote data
@@ -70,9 +76,6 @@ export default function Clients() {
     queryKey: ['quote', slug?.[0]],
     queryFn: async () => {
       try {
-        if (!slug?.[0]) {
-          return null;
-        }
 
         const result = await getAllQuote(slug[0]);
 
@@ -84,14 +87,17 @@ export default function Clients() {
         throw error;
       }
     },
-    enabled: Boolean(slug?.[0]),
+    enabled: true,
     staleTime: 1000 * 60 * 5,
     cacheTime: 1000 * 60 * 30,
-    refetchInterval: 1000 * 60 * 2,
+    refetchInterval: 1000 * 15,
+
   });
 
+  
+
   // Memoize the filtered client data
-  const filterQueryData = useMemo(() => 
+  const filterQueryData = useMemo(() =>
     clientData?.find((data) => data._id === slug?.[0]),
     [clientData, slug]
   );
@@ -104,13 +110,13 @@ export default function Clients() {
   }, [filterQueryData]);
 
   // Memoize the flattened client data
-  const flattenedClient = useMemo(() => 
+  const flattenedClient = useMemo(() =>
     client ? flattenObject(client) : {},
     [client]
   );
 
   // Memoize the data array
-  const data = useMemo(() => 
+  const data = useMemo(() =>
     [flattenedClient],
     [flattenedClient]
   );

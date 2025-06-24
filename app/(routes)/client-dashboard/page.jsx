@@ -55,6 +55,8 @@ export default function ClientDashboardPage() {
     const dispatch = useDispatch();
     const queryClient = useQueryClient();
 
+    console.log("user data is : ", user);
+
     const inputRef = useRef();
 
     const [filters, setFilters] = useState({
@@ -72,7 +74,7 @@ export default function ClientDashboardPage() {
         queryFn: fetchAllUserQueries,
         staleTime: 1000 * 60 * 5,
         cacheTime: 1000 * 60 * 30,
-        refetchInterval: 1000 * 5,     // ✅ Refetch every 30 seconds
+        refetchInterval: 1000 * 30,     // ✅ Refetch every 30 seconds
         enabled: true,
         onError: (error) => {
             console.error("Error fetching orders:", error);
@@ -108,7 +110,9 @@ export default function ClientDashboardPage() {
             const salesPersonMatch = filters.salesPerson ? client.assignedTo?._id === filters.salesPerson : true;
 
             if (isSales) {
-                return client.assignedTo?._id === user?._id &&
+                const isAssigned = client.assignedTo?._id === user?._id;
+                const isCreator = client.createdBy === user?._id;
+                return (isAssigned || isCreator) &&
                     emailMatch && nameMatch && phoneMatch && dateMatch && statusMatch;
             }
 
@@ -148,6 +152,7 @@ export default function ClientDashboardPage() {
             }
         });
     };
+
 
     const formatDate = (dateString) => {
         if (!dateString) return 'N/A';
@@ -208,7 +213,7 @@ export default function ClientDashboardPage() {
 
     }
 
-    
+
 
     async function applyChangesHandler(clientId) {
 
@@ -495,20 +500,23 @@ export default function ClientDashboardPage() {
                                                     )}
                                                 </TableCell>
                                                 <TableCell>{formatDate(client.createdAt)}</TableCell>
-                                                <TableCell>
-                                                    <Badge variant={client.status === "Assigned" ? "default" : "outline"}>
-                                                        {client.status}
-                                                    </Badge>
-                                                </TableCell>
+
                                                 {!isAdmin && (
                                                     <TableCell>
                                                         {client.assignedBy?.name || "Not available"}
                                                     </TableCell>
                                                 )}
-                                                {isAdmin ? (
+
+                                                <TableCell>
+                                                    <Badge variant={client.status === "Assigned" ? "default" : "outline"}>
+                                                        {client.status}
+                                                    </Badge>
+                                                </TableCell>
+
+                                                {isAdmin || user?._id === client.createdBy ? (
                                                     <TableCell>
                                                         <Select
-                                                            onValueChange={(value) => handleSalesUserSelect(client._id, value)}
+                                                            onValueChange={(salesPersonId) => handleSalesUserSelect(client._id, salesPersonId)}
                                                             disabled={isAssigning}
                                                         >
                                                             <SelectTrigger>
