@@ -491,9 +491,19 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
                         {/* Show version and cost details only for first vendor of first item in a version */}
                         {isFirstVendorInFirstItem && (
                           <>
-                            <td className="border px-3 py-2 text-blue-600 font-medium" rowSpan={quote.items.reduce((acc, curr) => acc + (curr.vendors?.length || 1), 0)}>{quote.version}</td>
+                            <td className="border px-3 py-2 text-blue-600 font-medium" rowSpan={quote.items.reduce((acc, curr) => acc + (curr.vendors?.length || 1), 0)}>
+                              <div className="flex flex-col gap-2 items-start">
+                                <span>{quote.version}</span>
+                                {quote.image && (
+                                  <a href={quote.image} target="_blank" rel="noopener noreferrer" className="text-sm text-indigo-600 hover:underline">
+                                    View Attachment
+                                  </a>
+                                )}
+                              </div>
+                            </td>
                           </>
                         )}
+
                         {vendorIdx === 0 && (
                           <>
                             <td className="border px-3 py-2" rowSpan={item.vendors.length}>
@@ -764,7 +774,16 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
                   <tr key={`${quoteIdx}-${itemIdx}-no-vendor`} className="border-b">
                     {isFirstItemInVersion && (
                       <>
-                        <td className="border px-3 py-2 text-blue-600 font-medium" rowSpan={quote.items.reduce((acc, curr) => acc + (curr.vendors?.length || 1), 0)}>{quote.version}</td>
+                        <td className="border px-3 py-2 text-blue-600 font-medium" rowSpan={quote.items.reduce((acc, curr) => acc + (curr.vendors?.length || 1), 0)}>
+                          <div className="flex flex-col gap-2 items-start">
+                            <span>{quote.version}</span>
+                            {quote.image && (
+                              <a href={quote.image} target="_blank" rel="noopener noreferrer" className="text-sm text-indigo-600 hover:underline">
+                                View Attachment
+                              </a>
+                            )}
+                          </div>
+                        </td>
                       </>
                     )}
                     <td className="border px-3 py-2">

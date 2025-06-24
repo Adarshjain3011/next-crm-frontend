@@ -82,6 +82,7 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
                     quantity: 0,
                     finalUnitPrice: 0,
                     subtotal: 0,
+
                 }
             ],
             taxPercent: 0,
@@ -89,7 +90,7 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
             installation: 0,
             totalAmount: 0,
             reason: '',
-            image: "",
+            image: '',
         }
     });
 
@@ -470,4 +471,6 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
         </div>
     );
 }
+
+
 
