@@ -63,7 +63,7 @@ export default function Clients() {
     queryFn: fetchAllUserQueries,
     staleTime: 1000 * 60 * 5,
     cacheTime: 1000 * 60 * 30,
-    refetchInterval: 1000 * 5,     // ✅ Refetch every 30 seconds
+    refetchInterval: 1000 * 20,     // ✅ Refetch every 30 seconds
     enabled: true,
     onError: (error) => {
       console.error("Error fetching orders:", error);
@@ -90,7 +90,7 @@ export default function Clients() {
     enabled: true,
     staleTime: 1000 * 60 * 5,
     cacheTime: 1000 * 60 * 30,
-    refetchInterval: 1000 * 15,
+    refetchInterval: 1000 * 60 * 3,
 
   });
 

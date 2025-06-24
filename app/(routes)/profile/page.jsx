@@ -33,6 +33,7 @@ import { handleAxiosError } from '@/lib/handleAxiosError';
 import axios from '@/app/providers/axiosCall';
 
 import { setUserData } from '@/app/store/slice/salesPersonData';
+import { updateUserImage } from '@/lib/api';
 
 export default function ProfilePage() {
 
@@ -93,13 +94,13 @@ export default function ProfilePage() {
 
             const formData = new FormData();
 
-            formData.append("file", selectedAvatarFile);
+            formData.append("imageFile", selectedAvatarFile);
 
-            const result = await axios.post("/user/updateUserImage", formData);
+            const result = await updateUserImage(formData);
 
             console.log("result is : ", result);
 
-            dispatch(setUserData(result.data.data));
+            dispatch(setUserData(result));
 
         } catch (error) {
 
@@ -145,7 +146,6 @@ export default function ProfilePage() {
 
                             setResetPasswordModal(true);
 
-
                         }}>Reset Password</Button>
 
                         <Button
@@ -170,11 +170,12 @@ export default function ProfilePage() {
 
                 </div>
 
-
-
                 {/* Main Profile Card */}
+
                 <Card className="shadow-lg border-0">
+
                     <CardHeader className="border-b border-gray-100 bg-white rounded-t-xl">
+
                         <div className="flex items-center gap-6">
 
                             <div>
@@ -236,8 +237,11 @@ export default function ProfilePage() {
                                     </Badge>
                                 </div>
                             </div>
+
                         </div>
+
                     </CardHeader>
+
                     <CardContent className="p-6">
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -394,6 +398,7 @@ export default function ProfilePage() {
                             )} */}
                         </form>
                     </CardContent>
+
                 </Card>
 
             </div>

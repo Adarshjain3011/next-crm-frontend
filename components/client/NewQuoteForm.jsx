@@ -147,6 +147,9 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
                 // Call the addNewQuotation function with the formData
                 await addNewQuotation(formData);
                 setAddNewQuoteFormModal(false);
+
+                queryClient.invalidateQueries(['quote']);
+
                 toast.success("Quote added successfully!");
 
             } catch (error) {
@@ -184,8 +187,8 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
                         return;
                     }
                     else if (data[field] !== original[field]) {
-                        rootFieldChanges[field] = ["taxPercent", "transport", "installation"].includes(field) 
-                            ? Number(data[field]) 
+                        rootFieldChanges[field] = ["taxPercent", "transport", "installation"].includes(field)
+                            ? Number(data[field])
                             : data[field];
                     }
                 });
@@ -267,6 +270,11 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
                 console.error("Error updating quote:", error);
                 handleAxiosError(error);
                 toast.error("Failed to update quotation");
+            }
+            finally{
+
+                queryClient.invalidateQueries(['quote']);
+
             }
         }
     };
