@@ -14,8 +14,6 @@ const membersSlice = createSlice({
 
         addNewMember: (state, action) => {
 
-            console.log("add new member ",action.payload);
-
             if (Array.isArray(state.data)) {
 
                 state.data.push(action.payload);  // ✅ safe now

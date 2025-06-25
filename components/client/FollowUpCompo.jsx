@@ -37,8 +37,6 @@ export const FollowUpCompo = ({ client, setClient }) => {
 
             data.enqueryId = client._id;
 
-            console.log("add new follow up handler ke andar ", data);
-
             // here we have to make db call to handle followups data
 
             const result = await addNewFollowUpHandler(data);
@@ -69,11 +67,7 @@ export const FollowUpCompo = ({ client, setClient }) => {
 
             // message, respondedBy, enqueryId, followUpId
 
-            console.log("active followup id is ", activeFollowUpId);
-
             let data = {};
-
-            console.log("message", followUpInputRef.current.value);
 
             // message, enqueryId, followUpId
 
@@ -81,13 +75,9 @@ export const FollowUpCompo = ({ client, setClient }) => {
             data.enqueryId = client._id;
             data.followUpId = activeFollowUpId;
 
-            console.log("final data is ", data);
-
             // make call to save the response 
 
             const result = await respondToFollowUp(data);
-
-            console.log("result is :", result);
 
             followUpInputRef.current.value = "";
 
@@ -104,13 +94,9 @@ export const FollowUpCompo = ({ client, setClient }) => {
                 followUp._id === activeFollowUpId ? matchedFollowUp : followUp
             );
 
-            console.log("updatedFollowUps", updatedFollowUps);
-
             // Set updated client state
             setClient({ ...client, followUps: updatedFollowUps });
             setActiveFollowUpId(null);
-
-            console.log("Updated follow up responses:", matchedFollowUp.responses);
 
             toast.success("response added to the note successfully ",)
 
@@ -144,8 +130,6 @@ export const FollowUpCompo = ({ client, setClient }) => {
 
             data.status = value;
 
-            console.log("data is ",data);
-
             let result = await updateFollowUpStatus(data);
 
             setClient(result);
@@ -157,7 +141,7 @@ export const FollowUpCompo = ({ client, setClient }) => {
 
             console.log(error);
 
-            handleAxiosError(error);
+            return handleAxiosError(error);
 
         }
     }
@@ -242,7 +226,6 @@ export const FollowUpCompo = ({ client, setClient }) => {
                                             ) : (
                                                 <Button onClick={() => {
 
-                                                    console.log("follow up id is ", followUp._id);
                                                     setActiveFollowUpId(followUp._id);
                                                 }}>
                                                     Add Response

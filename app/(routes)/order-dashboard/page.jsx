@@ -69,8 +69,6 @@ export default function OrderDashboard() {
 
     let membersData = useSelector((state) => state.members.data);
 
-    console.log("members data is : ", membersData);
-
     function getVendorName(vendorId) {
 
         const vendor = membersData.find((member) => member._id === vendorId);
@@ -223,14 +221,7 @@ export default function OrderDashboard() {
 
             }
 
-            console.log("prepared data is : ", preparedData);
-
-            console.log("prepared data is : ", preparedData);
-
             const result = await updateOrderStatus(preparedData);
-
-            console.log("update order status : ", result);
-
 
         } catch (error) {
 
@@ -423,7 +414,6 @@ export default function OrderDashboard() {
                                                     <td className="border px-3 py-2 text-center text-blue-500 cursor-pointer" onClick={() => {
                                                         setShowVendorDetails(true);
                                                         const filteredVendorData = membersData.find((member) => member._id === vendor.vendorId);
-                                                        console.log("Vendor data at the click is : ", filteredVendorData);
                                                         setSpecificVendorData(filteredVendorData);
                                                     }}>
                                                         {getVendorName(vendor.vendorId) || "Unknown Vendor"}

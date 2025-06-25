@@ -56,17 +56,11 @@ const NotificationPage = () => {
 
   const { user } = useAuth();
 
-  console.log("user data is : ", user);
-
   async function fetchAllNotificationsData() {
     try {
       const result = await getAllNotification();
 
-      console.log("result is :", result);
-
       if (Array.isArray(result)) {
-
-        console.log("result is : ",result);
 
         return result;
 
@@ -117,12 +111,7 @@ const NotificationPage = () => {
     }
   }, [dispatch, membersData.length]);
 
-
-  console.log("all members data ", membersData);
-
   let filtereSalesUserData = membersData && membersData.filter((data) => data.role == user_role.sales);
-
-  console.log("filtered sales data : ", filtereSalesUserData);
 
   let filterNotificationData = notifications.filter((data) => {
 
@@ -130,14 +119,13 @@ const NotificationPage = () => {
       ? new Date(data.createdAt).toLocaleDateString() === new Date(filters.date).toLocaleDateString()
       : true;
 
-    console.log("data at the created at : ",data);
-
     const userMatch = filters.user ? filters.user === data.recipientId._id : true;
 
     return dateMatch && userMatch;
 
-
   })
+
+  
 
   // now i have to implement filter on the basis of the sales person 
 

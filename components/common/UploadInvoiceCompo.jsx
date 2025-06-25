@@ -33,8 +33,6 @@ export default function UploadInvoiceCompo({ order, setUploadInvoiceModal }) {
             return;
         }
 
-        console.log("handle upload ke andar")
-
         const formData = new FormData();
         formData.append('file', file);
         formData.append('orderId', order._id);
@@ -51,7 +49,6 @@ export default function UploadInvoiceCompo({ order, setUploadInvoiceModal }) {
         await withLoading(
             async () => {
                 const result = await uploadPdfToInvoice(formData);
-                console.log("Upload completed:", result);
                 setUploadProgress(100);
                 toast.success("Invoice uploaded successfully");
                 setUploadInvoiceModal(false); // Close the modal after successful upload

@@ -55,8 +55,6 @@ export default function ClientDashboardPage() {
     const dispatch = useDispatch();
     const queryClient = useQueryClient();
 
-    console.log("user data is : ", user);
-
     const inputRef = useRef();
 
     const [filters, setFilters] = useState({
@@ -91,8 +89,6 @@ export default function ClientDashboardPage() {
     const [editingRequirement, setEditingRequirement] = useState({});
 
     const [editClientDetails, setEditClientDetails] = useState({});
-
-    console.log("client data : ", clients);
 
     // filtered clients
 
@@ -178,8 +174,6 @@ export default function ClientDashboardPage() {
 
     filteredClients && filteredClients.forEach((data) => {
 
-        console.log("filtered clients data is : ", data);
-
         let item = {
 
             email: data.email,
@@ -224,8 +218,6 @@ export default function ClientDashboardPage() {
 
         }
 
-        console.log("final payload is : ", finalpayload);
-
         try {
 
             const result = await updateEnqueryDetails(finalpayload);
@@ -235,7 +227,6 @@ export default function ClientDashboardPage() {
 
         } catch (error) {
 
-            console.log("error is : ", error);
             handleAxiosError(error);
 
         }

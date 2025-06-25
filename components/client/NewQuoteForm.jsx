@@ -109,7 +109,6 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
         if (data.version === "New Quote") {
             try {
                 setIsLoading(true);
-                console.log("on submit new quote form ke andar ", data);
 
                 // Create FormData instance
                 const formData = new FormData();
@@ -139,10 +138,9 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
                 // Append the stringified data payload
                 formData.append('data', JSON.stringify(dataPayload));
 
-                console.log("FormData contents:");
-                for (let pair of formData.entries()) {
-                    console.log(pair[0], pair[1]);
-                }
+                // for (let pair of formData.entries()) {
+                //     console.log(pair[0], pair[1]);
+                // }
 
                 // Call the addNewQuotation function with the formData
                 await addNewQuotation(formData);
@@ -247,14 +245,13 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
                     formData.append("itemChanges", JSON.stringify(itemChanges));
                     formData.append("quoteId", original._id);
 
-                    console.log("FormData contents for update:");
-                    for (let pair of formData.entries()) {
-                        console.log(pair[0], pair[1]);
-                    }
+                    // console.log("FormData contents for update:");
+                    // for (let pair of formData.entries()) {
+                    //     console.log(pair[0], pair[1]);
+                    // }
 
                     const result = await updateRootFieldsAndItemAddDeleteAndUpdate(formData);
-                    console.log("Update result:", result);
-
+    
                     dispatch(updateRootFieldsAndItem({
                         rootFieldChanges,
                         itemChanges,
@@ -289,8 +286,6 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
 
     const handleVersionChange = (e) => {
         const value = e.target.value;
-
-        console.log("version value is ", value);
 
         setValue("version", value);
 

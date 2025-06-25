@@ -15,8 +15,6 @@ export default function DeleteConfirmationModal({ onClose, enquiryDetails,client
 
             setLoading(true);
 
-            console.log("enqueryId at the specific enquery deletion",clientId);
-
             const result = await deleteSpecificEnquery(clientId);
 
             queryClient.invalidateQueries(['clientQueries']);

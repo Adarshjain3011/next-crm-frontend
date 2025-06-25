@@ -17,9 +17,9 @@ import { handleAxiosError } from '@/lib/handleAxiosError';
  */
 export const performLogout = async (dispatch, router, clearPersistedData = true, queryClient = null) => {
   try {
-    // Call the logout API
+
     await logoutHandler();
-    console.log("Logout API call successful");
+
   } catch (error) {
 
     handleAxiosError(error);
@@ -38,7 +38,6 @@ export const performLogout = async (dispatch, router, clearPersistedData = true,
   if (queryClient) {
     try {
       queryClient.clear();
-      console.log("React Query cache cleared successfully");
     } catch (error) {
       console.error('Failed to clear React Query cache:', error);
     }
@@ -48,7 +47,6 @@ export const performLogout = async (dispatch, router, clearPersistedData = true,
   if (clearPersistedData) {
     try {
       await persistor.purge();
-      console.log("Persisted data cleared successfully");
     } catch (error) {
       console.error('Failed to clear persisted data:', error);
     }

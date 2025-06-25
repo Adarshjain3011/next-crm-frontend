@@ -39,11 +39,7 @@ export default function AddNewMemberModal({ setAddNewMemberModal }) {
 
             setLoading(true);
 
-            console.log("onSubmit data:", data);
-
             const result = await createNewUser(data);
-
-            console.log("result of newly created member : ", result);
 
             dispatch(addNewMember(result));
             setAddNewMemberModal(false);

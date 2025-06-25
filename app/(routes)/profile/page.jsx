@@ -44,8 +44,6 @@ export default function ProfilePage() {
 
     const [resetPasswordModal, setResetPasswordModal] = useState(false);
 
-    console.log("user data at the profile ", user);
-
     const [formData, setFormData] = useState({
         name: user?.name || '',
         email: user?.email || '',
@@ -97,8 +95,6 @@ export default function ProfilePage() {
             formData.append("imageFile", selectedAvatarFile);
 
             const result = await updateUserImage(formData);
-
-            console.log("result is : ", result);
 
             dispatch(setUserData(result));
 

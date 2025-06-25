@@ -37,8 +37,6 @@ import { SectionLoader } from '@/components/ui/loader';
 
 export default function QuoteRivisionComponent({ dummyData, client, setClient, enquiryData, enqueryId }) {
 
-  console.log("dummy data is : ", dummyData);
-
 
   const dispatch = useDispatch();
   const { data: reduxQuoteData, loading, error } = useSelector((state) => state.quote);
@@ -137,8 +135,6 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
 
   const handleSaveVendorChangesAtQuotes = async (versionIndex, itemIndex, vendorIdx) => {
 
-    console.log("handle save vendor changes at quotes called", versionIndex, itemIndex, vendorIdx);
-
     // quoteId, itemIndex, vendorData,vendorIndex,isUpdate
 
     try {
@@ -167,15 +163,6 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
         return;
       }
 
-      // if(!vendorData?.vendordeliveryStatus) {
-
-
-      // }
-
-      console.log("vendor key ", vendorKey);
-
-      console.log("vendor data is", vendorData);
-
       // add version and item version
 
       vendorData = {
@@ -184,10 +171,6 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
         itemIndex: itemIndex,
 
       };
-
-      console.log("vendor data is : ", vendorData);
-
-      console.log("data at the quotes is ", data[versionIndex]);
 
       dispatch(setLoading(true));
 
@@ -209,9 +192,6 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
         ];
       }
 
-      // quoteId, itemIndex, vendorData 
-
-
       let preparedData = {
 
         quoteId: updatedData[versionIndex]._id,
@@ -221,15 +201,8 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
 
       }
 
-      console.log("prepared data is : ", preparedData);
-
-      // save vendor to the quotes
 
       const result = await addNewVendorTOQuoteHandler(preparedData);
-
-      console.log("result at add new vendor at quotes is ", result);
-
-      console.log("updated data that they going to update ");
 
       // Dispatch the update with the new array
       dispatch(updateVendorDataAtQuotes(updatedData));
@@ -239,7 +212,6 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
 
     }
     catch (error) {
-      console.log("error is ", error);
       dispatch(setError(error.message));
       handleAxiosError(error);
       toast.error("Failed to update vendor details");
@@ -253,23 +225,10 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
 
   const handleEditVendorAtQuotes = async (quoteIndex, itemIndex, vendorIdx) => {
 
-    console.log("handle edit vendor at quotes called with quoteIndex: ", quoteIndex, " itemIndex: ", itemIndex, " vendorIdx: ", vendorIdx);
-
     const vendorKey = `${quoteIndex}-${itemIndex}-${vendorIdx}`;
     const itemKey = `${quoteIndex}-${itemIndex}`;
     const vendor = data[quoteIndex].items[itemIndex].vendors[vendorIdx];
     const item = data[quoteIndex].items[itemIndex];
-
-
-    // console.log("vendor data is ", vendor);
-
-    // quoteId, itemIndex, vendorData
-
-    console.log("item key is ", itemKey);
-    console.log("item data is ", item);
-    console.log("quote index is ", quoteIndex);
-    console.log("item index is ", itemIndex);
-
 
     setEditingVendorKey(vendorKey);
     setEditVendorDataAtQuotes(prev => ({
@@ -281,7 +240,6 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
 
   const handleDeleteVendorAtQuotes = async (vendorId, itemIndex, versionIndex) => {
     try {
-      console.log("delete vendor at quotes called with vendorId: ", vendorId, " itemIndex: ", itemIndex, " versionIndex: ", versionIndex);
 
       const vendor = data[versionIndex].items[itemIndex].vendors.find(v => v.vendorId === vendorId);
 
@@ -308,8 +266,6 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
       };
 
       const result = await removeVendorFromQuoteHandler(preparedData);
-
-      console.log("result at remove vendor from quote handler is ", result);
 
       dispatch(setLoading(true));
       dispatch(deleteVendor({ versionIndex, itemIndex, vendorId }));
@@ -343,17 +299,12 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
       // Call the API to add new quotation
       const response = await addNewQuotationToClient(formData);
 
-      console.log("response ka data at add new quotation", response.data);
-
       dispatch(addNewQuote(response.data));
       setAddNewQuoteFormModal(false);
       toast.success("Quote added successfully!");
 
     } catch (error) {
 
-      console.log("error is ", error);
-
-      console.error("Error adding quote:", error);
       dispatch(setError(error.message));
       handleAxiosError(error);
       toast.error("Failed to add quote");
@@ -374,10 +325,6 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
         return;
       }
 
-      console.log("edited item is ", editedItem);
-
-      // now we have to update the item in the db 
-
       // Create a deep copy of the data array
       let updatedData = JSON.parse(JSON.stringify(data));
       updatedData[versionIdx].items[itemIdx] = {
@@ -397,11 +344,7 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
 
       }
 
-      console.log("prepare data is at save edit item at quotes", prepareData);
-
       const result = await updateQuoteItemDetailsHandler(prepareData);
-
-      console.log("result at update quote item details handler is ", result);
 
       // Update the state with the modified data
       dispatch(updateVendorDataAtQuotes(updatedData)); // Assuming this updates the Redux store

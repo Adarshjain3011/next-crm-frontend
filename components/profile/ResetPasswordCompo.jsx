@@ -26,8 +26,6 @@ const ResetPasswordCompo = ({ setResetPasswordModal }) => {
 
     const resetPasswordHandler = async () => {
         try {
-            console.log("New password:", newPasswordRef.current.value);
-            console.log("Confirm password:", confirmPasswordRef.current.value);
 
             if (newPasswordRef.current.value === "" || confirmPasswordRef.current.value === "") {
 

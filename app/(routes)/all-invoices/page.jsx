@@ -107,8 +107,6 @@ export default function AllInvoicesPage() {
 
     // Apply status filter
     if (statusFilter !== 'all') {
-      console.log("filtered data  : ", filtered);
-      console.log("status Filter data : ", statusFilter);
       filtered = filtered.filter(invoice => invoice.paymentStatus === statusFilter);
     }
 

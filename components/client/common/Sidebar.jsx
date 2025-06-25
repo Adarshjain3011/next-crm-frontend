@@ -35,9 +35,7 @@ export default function Sidebar() {
     const { logout } = useAuth();
 
     const { isAdmin, isSales, isAuthenticated } = useRole();
-
-    console.log("Sidebar rendered with isAdmin:", isAdmin, "isSales:", isSales, "isAuthenticated:", isAuthenticated);
-
+    
     // Hide sidebar on login page or when user is not authenticated
     if (!isAuthenticated || pathname === '/auth/login') {
         return null;

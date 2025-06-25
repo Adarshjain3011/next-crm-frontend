@@ -77,8 +77,6 @@ export default function TeamManagement() {
 
   const debouncedUpdate = debounce(async (dataToUpdate, reduxDataToUpdate, dispatch, columnId) => {
 
-    console.log("data to update ", dataToUpdate);
-
     try {
 
       const result = await updateMembersData(dataToUpdate);
@@ -253,9 +251,7 @@ export default function TeamManagement() {
       accessorKey: 'createdAt',
       cell: ({ getValue }) => {
         const rawDate = getValue();
-        console.log("rawDate", rawDate);
         const formattedDate = formatDateForInput(rawDate); // You already have this util
-        console.log("fomattedDate", formattedDate);
         return <span>{formattedDate}</span>;
       },
     },
@@ -278,8 +274,6 @@ export default function TeamManagement() {
       accessorKey: 'actions',
       cell: ({ row }) => {
         const member = row.original;
-
-        console.log("member data at delete member", member);
 
         return (
           <Button

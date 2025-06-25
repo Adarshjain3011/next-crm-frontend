@@ -14,8 +14,6 @@ export default function UserAvatar({ user, onImageSelect }) {
         
         const file = e.target.files?.[0];
 
-        console.log("handle file change ke andar : ",file);
-
         if (file && onImageSelect) {
             onImageSelect(file); // You can handle image upload here
         }

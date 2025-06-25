@@ -36,8 +36,6 @@ export default function EditVendorModal({
     });
 
     const onSubmit = (data) => {
-        console.log("Form Submitted:", data);
-        // Add your submit logic here
 
         setEditVendorModalOpen(false);
     };

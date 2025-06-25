@@ -255,10 +255,6 @@ export default function InvoiceFormPage() {
     const hasFieldChanges = Object.keys(changedFields).length > 0;
     setHasChanges(hasFieldChanges);
 
-    // Debug logging
-    if (hasFieldChanges) {
-      console.log('Changed fields:', changedFields);
-    }
   }, [changedFields]);
 
   // Calculate total amount
@@ -470,8 +466,6 @@ export default function InvoiceFormPage() {
   };
 
   const handleDeleteInvoice = async () => {
-
-    console.log("handleDeleteInvoice called", invoiceDataState._id);
 
     if (!invoiceDataState._id) {
       toast.error("No invoice to delete");

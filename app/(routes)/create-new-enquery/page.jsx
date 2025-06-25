@@ -44,8 +44,7 @@ export default function createNewEnquery() {
             reset(); // Clears all fields
 
         } catch (error) {
-
-            console.log("error is : ", error);
+            
             handleAxiosError(error);
 
         }
