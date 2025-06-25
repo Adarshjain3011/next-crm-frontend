@@ -59,7 +59,7 @@ let type_of_item_changes = {
 }
 
 
-export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModal, addNewQuotation, client }) {
+export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModal, addNewQuotation, client,queryClient }) {
 
 
     // we have to filter out the things on the basis of the version
@@ -244,11 +244,6 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
                     formData.append("rootFieldChanges", JSON.stringify(rootFieldChanges));
                     formData.append("itemChanges", JSON.stringify(itemChanges));
                     formData.append("quoteId", original._id);
-
-                    // console.log("FormData contents for update:");
-                    // for (let pair of formData.entries()) {
-                    //     console.log(pair[0], pair[1]);
-                    // }
 
                     const result = await updateRootFieldsAndItemAddDeleteAndUpdate(formData);
     

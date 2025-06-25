@@ -843,10 +843,14 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
 
       {addNewQuoteFormModal && (
         <AddNewQuoteForm
+
           dummyData={data}
           setAddNewQuoteFormModal={setAddNewQuoteFormModal}
           addNewQuotation={addNewQuotation}
           client={client}
+
+          queryClient={queryClient}
+
         />
       )}
     </div>
