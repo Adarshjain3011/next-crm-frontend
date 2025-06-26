@@ -32,6 +32,7 @@ import { Changa } from 'next/font/google';
 import { setAllMembersData } from '@/app/store/slice/membersSlice';
 import { getAllMembersData } from '@/lib/api';
 
+
 export default function OrderDashboard() {
 
     const router = useRouter();
@@ -41,13 +42,14 @@ export default function OrderDashboard() {
 
     const [selectedOrderData, setSelectedOrderData] = useState(null);
 
+    const dispatch = useDispatch();
+
+
     const [filters, setFilters] = useState({
         name: "",
         status: "",
         date: "",
     });
-
-    const dispatch = useDispatch();
     const [showVendorDetails, setShowVendorDetails] = useState(false);
     const [specificVendorData, setSpecificVendorData] = useState(null);
 
@@ -67,13 +69,10 @@ export default function OrderDashboard() {
     });
 
 
+
     let membersData = useSelector((state) => state.members.data);
 
-    function getVendorName(vendorId) {
 
-        const vendor = membersData.find((member) => member._id === vendorId);
-        return vendor ? vendor.name : "Unknown Vendor";
-    }
 
     let filteredOrders = orders.filter(order => {
         // Filter by name (client name)
@@ -95,6 +94,12 @@ export default function OrderDashboard() {
 
     });
 
+
+    function getVendorName(vendorId) {
+        // console.log("vendor data is ", membersData);
+        const vendor = membersData.find((member) => member._id === vendorId);
+        return vendor ? vendor.name : "Unknown Vendor";
+    }
 
 
     async function generateInvoiceHandler(order) {
@@ -250,13 +255,14 @@ export default function OrderDashboard() {
 
         }
 
+
         if (!membersData) {
 
             getAllMembersData();
 
         }
 
-    }, [])
+    }, []);
 
 
     return (
@@ -410,13 +416,14 @@ export default function OrderDashboard() {
                                                         </>
                                                     )}
 
+
                                                     {/* Vendor-specific details */}
                                                     <td className="border px-3 py-2 text-center text-blue-500 cursor-pointer" onClick={() => {
                                                         setShowVendorDetails(true);
                                                         const filteredVendorData = membersData.find((member) => member._id === vendor.vendorId);
                                                         setSpecificVendorData(filteredVendorData);
                                                     }}>
-                                                        {getVendorName(vendor.vendorId) || "Unknown Vendor"}
+                                                        {vendor?.vendorId && getVendorName(vendor?.vendorId) || "Unknown Vendor"}
                                                     </td>
                                                     <td className="border px-3 py-2 text-center">
                                                         {vendor.itemRef || "-"}

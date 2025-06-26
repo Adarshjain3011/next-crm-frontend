@@ -40,8 +40,7 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import { updateEnqueryDetails } from "@/lib/api";
 
 import DeleteConfirmationModal from "@/components/client/DeleteEnqueryConfirmationModal";
-
-
+import MultiUserSelect from "@/components/common/MultiUserSelect";
 
 
 export default function ClientDashboardPage() {
@@ -104,14 +103,6 @@ export default function ClientDashboardPage() {
                 : true;
             const statusMatch = filters.status ? client.status === filters.status : true;
             const salesPersonMatch = filters.salesPerson ? client.assignedTo?._id === filters.salesPerson : true;
-
-            if (isSales) {
-                const isAssigned = client.assignedTo?._id === user?._id;
-                const isCreator = client.createdBy === user?._id;
-                return (isAssigned || isCreator) &&
-                    emailMatch && nameMatch && phoneMatch && dateMatch && statusMatch;
-            }
-
             return emailMatch && nameMatch && phoneMatch && dateMatch && statusMatch && salesPersonMatch;
         });
     }, [clients, filters, isSales, user]);
@@ -135,20 +126,26 @@ export default function ClientDashboardPage() {
         }
     }, [dispatch, membersData.length]);
 
+    // Add state for selected users
+    const [selectedSalesPersons, setSelectedSalesPersons] = useState({});
 
-    const handleSalesUserSelect = async (enqueryId, salesPersonId) => {
+    // Update handleSalesUserSelect to handle multiple users (but backend expects a single user for now)
+    const handleSalesUsersSelect = async (enqueryId, salesPersonIds) => {
         await withLoading(async () => {
             try {
-                await assignSalesPersonToEnquery({ enqueryId, salesPersonId });
+                // If only one user is selected, send as object, else as array (future-proof)
+                const payload = Array.isArray(salesPersonIds) && salesPersonIds.length === 1
+                    ? { enqueryId, salesPersonId: salesPersonIds[0] }
+                    : { enqueryId, salesPersonIds };
+                await assignSalesPersonToEnquery(payload);
                 queryClient.invalidateQueries(['clientQueries']);
-                toast.success("Salesperson assigned successfully!");
+                toast.success("Salesperson(s) assigned successfully!");
             } catch (error) {
-                console.error("Failed to assign salesperson:", error);
-                toast.error("Failed to assign salesperson.");
+                console.error("Failed to assign salesperson(s):", error);
+                toast.error("Failed to assign salesperson(s).");
             }
         });
     };
-
 
     const formatDate = (dateString) => {
         if (!dateString) return 'N/A';
@@ -231,6 +228,11 @@ export default function ClientDashboardPage() {
 
         }
     }
+
+
+    console.log("client id is : ",clients);
+
+    console.log("members data is : ",membersData);
 
 
     return (
@@ -333,7 +335,7 @@ export default function ClientDashboardPage() {
                             <TableBody>
                                 {filteredClients.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={dynamicHeadingNames.length + 1}>
+                                        <TableCell colSpan={dynamicHeadingNames.length + 2}>
                                             No client inquiries found.
                                         </TableCell>
                                     </TableRow>
@@ -506,33 +508,42 @@ export default function ClientDashboardPage() {
 
                                                 {isAdmin || user?._id === client.createdBy ? (
                                                     <TableCell>
-                                                        <Select
-                                                            onValueChange={(salesPersonId) => handleSalesUserSelect(client._id, salesPersonId)}
-                                                            disabled={isAssigning}
-                                                        >
-                                                            <SelectTrigger>
-                                                                <SelectValue placeholder={
-                                                                    isAssigning ? (
-                                                                        <div className="flex items-center">
-                                                                            <InlineLoader size="sm" className="mr-2" />
-                                                                            Assigning...
-                                                                        </div>
-                                                                    ) : (
-                                                                        assignedPersonName || "Assign"
-                                                                    )
-                                                                } />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {salesPersonData.map(user => (
-                                                                    <SelectItem key={user._id} value={user._id}>
-                                                                        {user.name}
-                                                                    </SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
+                                                        <MultiUserSelect
+                                                            options={salesPersonData.map(m => ({ _id: m._id, name: m.name }))}
+                                                            selected={
+                                                                selectedSalesPersons[client._id]
+                                                                || (Array.isArray(client.assignedTo)
+                                                                    ? client.assignedTo.map(u => ({ _id: u._id, name: u.name }))
+                                                                    : client.assignedTo
+                                                                        ? [{ _id: client.assignedTo._id, name: client.assignedTo.name }]
+                                                                        : [])
+                                                            }
+                                                            setSelected={(users) => {
+                                                                setSelectedSalesPersons((prev) => ({ ...prev, [client._id]: users }));
+                                                            }}
+                                                            label="Assign Salespersons"
+                                                            enqueryId={client._id}
+                                                            queryClient={queryClient}
+                                                        />
+                
                                                     </TableCell>
                                                 ) : (
-                                                    <TableCell>{client.assignedTo?.name || "Unassigned"}</TableCell>
+                                                    <TableCell>
+                                                        {Array.isArray(client.assignedTo) && client.assignedTo.length > 0 ? (
+                                                            <div className="flex flex-wrap gap-2">
+                                                                {client.assignedTo.map(user => (
+                                                                    <span key={user._id} className="flex items-center bg-purple-100 text-purple-800 rounded-full px-3 py-1 text-xs font-semibold shadow">
+                                                                        <span className="w-5 h-5 rounded-full bg-purple-300 text-white flex items-center justify-center mr-2 text-xs font-bold">
+                                                                            {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                                                                        </span>
+                                                                        {user.name}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-gray-400">Unassigned</span>
+                                                        )}
+                                                    </TableCell>
                                                 )}
 
                                                 <TableCell>

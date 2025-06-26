@@ -28,9 +28,22 @@ export default function UploadInvoiceCompo({ order, setUploadInvoiceModal }) {
     };
 
     const handleUpload = async () => {
+
+
         if (!file) {
             alert('Please select a file first.');
             return;
+        }
+
+        console.log("order invoice id is ",order);
+
+        if(!order.invoiceId || !order.invoiceId._id){
+
+            toast.error("first you have to create an invoice ");
+
+            setUploadInvoiceModal(false);
+
+            return 
         }
 
         const formData = new FormData();

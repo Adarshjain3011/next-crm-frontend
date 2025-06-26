@@ -90,11 +90,11 @@ export default function Clients() {
     enabled: true,
     staleTime: 1000 * 60 * 5,
     cacheTime: 1000 * 60 * 30,
-    refetchInterval: 1000 * 60 * 3,
+    refetchInterval: 1000 * 60 * 6,
 
   });
 
-  
+
 
   // Memoize the filtered client data
   const filterQueryData = useMemo(() =>
@@ -122,19 +122,51 @@ export default function Clients() {
   );
 
   // Memoize the columns
+
   const columns = useMemo(() =>
     Object.keys(flattenedClient)
       .filter((key) => !removedFields.includes(key))
-      .map((key) => ({
-        accessorKey: key,
-        accessorFn: (row) => row[key],
-        header: key
-          .replace(/\./g, ' → ')
-          .replace(/_/g, ' ')
-          .replace(/\b\w/g, (c) => c.toUpperCase()),
-      })),
+      .map((key) => {
+        // Custom rendering for 'assignedTo'
+        if (key === 'assignedTo') {
+          return {
+            accessorKey: key,
+            accessorFn: (row) => row[key],
+            header: "Assigned To",
+            cell: ({ row }) => {
+              const users = row.original[key];
+              if (!Array.isArray(users) || users.length === 0) {
+                return <span className="text-gray-400 italic">None</span>;
+              }
+
+              return (
+                <div className="flex flex-wrap gap-1">
+                  {users.map((user, idx) => (
+                    <span
+                      key={idx}
+                      className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-xs"
+                    >
+                      {user?.name || "Unnamed"}
+                    </span>
+                  ))}
+                </div>
+              );
+            }
+          };
+        }
+        // Default render for other fields
+        return {
+          accessorKey: key,
+          accessorFn: (row) => row[key],
+          header: key
+            .replace(/\./g, ' → ')
+            .replace(/_/g, ' ')
+            .replace(/\b\w/g, (c) => c.toUpperCase()),
+        };
+      }),
     [flattenedClient, removedFields]
   );
+
 
   // Initialize table
   const table = useReactTable({
@@ -177,7 +209,9 @@ export default function Clients() {
                   <tr key={row.id} className="border-b">
                     {row.getVisibleCells().map((cell) => (
                       <td key={cell.id} className="border px-3 py-2">
+
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
+
                       </td>
                     ))}
                   </tr>
