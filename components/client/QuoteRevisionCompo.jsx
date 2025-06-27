@@ -442,16 +442,21 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
                             <td className="border px-3 py-2 min-w-6 text-blue-600 font-medium" rowSpan={quote.items.reduce((acc, curr) => acc + (curr.vendors?.length || 1), 0)}>
                               <div className="flex flex-col gap-2 items-start">
                                 <span>{quote.version}</span>
-                                {
 
-                                  quote.image.length > 0 && quote.image.map((data,index)=>(
+                                <div className="flex flex-col">
 
-                                    <a href={data} target="_blank" rel="noopener noreferrer" className="text-xs text-indigo-600 hover:underline border p-2 rounded-md">
-                                      View Attachment {index}
-                                    </a>
+                                  {
 
-                                  ))
-                                }
+                                    quote.image.length > 0 && quote.image.map((data, index) => (
+
+                                      <a href={data} target="_blank" rel="noopener noreferrer" className="text-xs text-indigo-600 hover:underline border p-2 rounded-md">
+                                        View Attachment {index}
+                                      </a>
+
+                                    ))
+                                  }
+
+                                </div>
                               </div>
                             </td>
                           </>
@@ -730,11 +735,16 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
                         <td className="border px-3 py-2 text-blue-600 font-medium" rowSpan={quote.items.reduce((acc, curr) => acc + (curr.vendors?.length || 1), 0)}>
                           <div className="flex flex-col gap-2 items-start">
                             <span>{quote.version}</span>
-                            {quote.image && (
-                              <a href={quote.image} target="_blank" rel="noopener noreferrer" className="text-sm text-indigo-600 hover:underline">
-                                View Attachment
-                              </a>
-                            )}
+                            {
+
+                              quote.image.length > 0 && quote.image.map((data, index) => (
+
+                                <a href={data} target="_blank" rel="noopener noreferrer" className="text-xs text-indigo-600 hover:underline border p-2 rounded-md">
+                                  View Attachment {index}
+                                </a>
+
+                              ))
+                            }
                           </div>
                         </td>
                       </>
