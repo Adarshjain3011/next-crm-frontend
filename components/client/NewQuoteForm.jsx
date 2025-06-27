@@ -28,6 +28,8 @@ import { updateRootFieldsAndItem } from "@/app/store/slice/quoteSlice";
 
 import { InlineLoader } from '@/components/ui/loader';
 
+import { removeImageFromQuotes } from "@/lib/api";
+
 
 let rootItemsFields = [
     "description",
@@ -59,7 +61,10 @@ let type_of_item_changes = {
 }
 
 
-export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModal, addNewQuotation, client,queryClient }) {
+export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModal, addNewQuotation, client, queryClient }) {
+
+
+    console.log("dummy data inside the addnewQuote Form ", dummyData);
 
 
     // we have to filter out the things on the basis of the version
@@ -82,7 +87,6 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
                     quantity: 0,
                     finalUnitPrice: 0,
                     subtotal: 0,
-
                 }
             ],
             taxPercent: 0,
@@ -90,12 +94,16 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
             installation: 0,
             totalAmount: 0,
             reason: '',
+            existingImages: [],
             image: '',
+            pdfUrl: '',
         }
     });
 
     // Watch version field
     const selectedVersion = watch("version");
+    const pdfUrl = watch("pdfUrl");
+    const existingImages = watch("existingImages");
 
     // Ensure dummyData is always an array
     const safeDummyData = Array.isArray(dummyData) ? dummyData : [];
@@ -113,9 +121,11 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
                 // Create FormData instance
                 const formData = new FormData();
 
-                // Handle the image file first
-                if (data.image && data.image[0]) {
-                    formData.append('image', data.image[0]);
+                // Handle new image files
+                if (data.image && data.image.length > 0) {
+                    Array.from(data.image).forEach(file => {
+                        formData.append('image', file);
+                    });
                 }
 
                 // Prepare the data payload without the image
@@ -127,12 +137,14 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
                     totalAmount: Number(data.totalAmount),
                     reason: data.reason || "",
                     notes: data.notes || "",
+                    pdfUrl: data.pdfUrl || '',
                     items: data.items.map(item => ({
                         ...item,
                         quantity: Number(item.quantity),
                         finalUnitPrice: Number(item.finalUnitPrice),
                         subtotal: Number(item.quantity) * Number(item.finalUnitPrice)
-                    }))
+                    })),
+                    existingImages: data.existingImages || [],
                 };
 
                 // Append the stringified data payload
@@ -191,6 +203,16 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
                     }
                 });
 
+                // Handle pdfUrl changes
+                if ((data.pdfUrl || '') !== (original.pdfUrl || '')) {
+                    rootFieldChanges['pdfUrl'] = data.pdfUrl || '';
+                }
+
+                // Handle image array changes
+                if (JSON.stringify(data.existingImages || []) !== JSON.stringify(original.image || [])) {
+                    rootFieldChanges['image'] = data.existingImages || [];
+                }
+
                 // Track changes in items
                 let itemChanges = [];
                 data.items.forEach((item, index) => {
@@ -246,7 +268,7 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
                     formData.append("quoteId", original._id);
 
                     const result = await updateRootFieldsAndItemAddDeleteAndUpdate(formData);
-    
+
                     dispatch(updateRootFieldsAndItem({
                         rootFieldChanges,
                         itemChanges,
@@ -256,20 +278,62 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
                     toast.success("Quotation updated successfully");
                     setAddNewQuoteFormModal(false);
                 } else {
-                    toast.info("No changes detected in this version.");
+                    toast.error("No changes detected in this version.");
                 }
             } catch (error) {
                 console.error("Error updating quote:", error);
                 handleAxiosError(error);
                 toast.error("Failed to update quotation");
             }
-            finally{
+            finally {
 
                 queryClient.invalidateQueries(['quote']);
 
             }
         }
     };
+
+
+    const onImageDeleteHandler = async(url,idx)=>{
+
+        try{
+
+            console.log("url is : ",url);
+
+            console.log("idx is : ",idx);
+
+            console.log("current version is : ",selectedVersion);
+
+            console.log("existing images : ",existingImages);
+
+            const filteredData = dummyData.find((ele)=>ele.version == selectedVersion);
+
+            console.log("filtered data is : ",filteredData);
+
+            let prepareData = {
+
+                quoteId:filteredData._id, 
+                imageIndex:idx
+            }
+
+            const result = await removeImageFromQuotes(prepareData);
+
+            
+            setValue('existingImages', existingImages.filter((_, i) => i !== idx));
+            
+            toast.success("image deleted successfully : ",result);
+
+            queryClient.invalidateQueries(['quote']);
+
+        }catch(error){
+
+            console.log("error is : ",error);
+
+            handleAxiosError(error);
+
+        }
+
+    }
 
 
     const { fields, append, remove } = useFieldArray({
@@ -302,7 +366,9 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
                 installation: 0,
                 totalAmount: 0,
                 reason: '',
-                image: "",
+                existingImages: [],
+                image: '',
+                pdfUrl: '',
             });
         } else {
             // Find the selected version's data
@@ -316,7 +382,9 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
                     installation: found.installation || 0,
                     totalAmount: found.totalAmount || 0,
                     reason: found.reason || '',
-                    image: "",
+                    existingImages: found.image || [],
+                    image: '',
+                    pdfUrl: found.pdfUrl || '',
                 });
             }
         }
@@ -434,18 +502,61 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
 
                         </div>
 
-                        <div>
-
-                            <Label>Image</Label>
-                            <Input type="file" {...register("image")} />
-
-                        </div>
-
                     </div>
 
                     <div>
                         <Label>Reason (Optional)</Label>
                         <Input {...register("reason")} />
+                    </div>
+
+                    {/* Existing Images Section */}
+                    <div>
+                        <Label>Quotation PDF(s) / Images</Label>
+                        {existingImages && existingImages.length > 0 && (
+                            <ul className="mb-2">
+                                {existingImages.map((url, idx) => {
+                                    const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+                                    const isPdf = /\.pdf$/i.test(url);
+                                    return (
+                                        <li key={idx} className="flex items-center gap-2">
+                                            {isImage ? (
+                                                <a href={url} target="_blank" rel="noopener noreferrer">
+                                                    <img
+                                                        src={url}
+                                                        alt={`Image ${idx + 1}`}
+                                                        className="w-16 h-16 object-cover rounded border"
+                                                    />
+                                                </a>
+                                            ) : isPdf ? (
+                                                <a href={url} target="_blank" rel="noopener noreferrer" className="flex items-center text-blue-600 underline break-all">
+                                                    <svg className="w-6 h-6 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                                    </svg>
+                                                    PDF File
+                                                </a>
+                                            ) : (
+                                                <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline break-all">
+                                                    {url}
+                                                </a>
+                                            )}
+                                            <button
+                                                type="button"
+                                                className="ml-2 text-red-600 border border-red-600 rounded px-2 py-1 text-xs"
+                                                onClick={()=>onImageDeleteHandler(url,idx)}
+                                            >
+                                                Delete
+                                            </button>
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                        )}
+                        <Input
+                            type="file"
+                            multiple
+                            {...register("image")}
+                            className="mt-1"
+                        />
                     </div>
 
                     <div className="text-center">
@@ -466,9 +577,12 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
                     </div>
                 </form>
             </div>
-        </div>
+
+        </div >
     );
 }
+
+
 
 
 
