@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import * as XLSX from "xlsx";
 
-function ExcelReader() {
-  const [data, setData] = useState([]);
+function ExcelReader({data,setData}) {
+  // const [data, setData] = useState([]);
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
@@ -47,10 +47,25 @@ function ExcelReader() {
   };
 
   return (
-    <div className="p-4">
-      <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
-      <pre>{JSON.stringify(data, null, 2)}</pre>
+    <div className="p-4 max-w-sm mx-auto bg-white dark:bg-gray-800 rounded-lg shadow">
+      <h3 className="text-base font-medium text-gray-700 dark:text-gray-200 mb-2">
+        Upload Excel File
+      </h3>
+
+      <input
+        type="file"
+        accept=".xlsx, .xls"
+        onChange={handleFileUpload}
+        className="block w-full text-sm text-gray-700 dark:text-gray-200 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+      />
+
+      {data && (
+        <div className="mt-4 bg-gray-100 dark:bg-gray-900 p-2 rounded text-xs text-gray-800 dark:text-gray-100 max-h-48 overflow-auto">
+          <pre>{JSON.stringify(data, null, 2)}</pre>
+        </div>
+      )}
     </div>
+
   );
 }
 

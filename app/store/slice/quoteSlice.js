@@ -36,11 +36,11 @@ const quoteSlice = createSlice({
             }
         },
         deleteVendor: (state, action) => {
-            const { versionIndex, itemIndex, vendorId } = action.payload;
+            const { versionIndex, itemIndex, vendorId, vendorIdx } = action.payload;
             if (state.data && state.data[versionIndex]?.items[itemIndex]?.vendors) {
                 state.data[versionIndex].items[itemIndex].vendors =
                     state.data[versionIndex].items[itemIndex].vendors.filter(
-                        vendor => vendor.vendorId !== vendorId
+                        (vendor, index) => vendorIdx == index
                     );
             }
         },

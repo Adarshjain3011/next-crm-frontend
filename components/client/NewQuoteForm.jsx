@@ -30,6 +30,8 @@ import { InlineLoader } from '@/components/ui/loader';
 
 import { removeImageFromQuotes } from "@/lib/api";
 
+import ExcelReader from "../common/ExcelReader";
+
 
 let rootItemsFields = [
     "description",
@@ -63,11 +65,10 @@ let type_of_item_changes = {
 
 export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModal, addNewQuotation, client, queryClient }) {
 
+    const [data, setData] = useState([]);
+
 
     console.log("dummy data inside the addnewQuote Form ", dummyData);
-
-
-    // we have to filter out the things on the basis of the version
 
     // if it is a new quote then we have to show the new quote form
 
@@ -294,40 +295,40 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
     };
 
 
-    const onImageDeleteHandler = async(url,idx)=>{
+    const onImageDeleteHandler = async (url, idx) => {
 
-        try{
+        try {
 
-            console.log("url is : ",url);
+            console.log("url is : ", url);
 
-            console.log("idx is : ",idx);
+            console.log("idx is : ", idx);
 
-            console.log("current version is : ",selectedVersion);
+            console.log("current version is : ", selectedVersion);
 
-            console.log("existing images : ",existingImages);
+            console.log("existing images : ", existingImages);
 
-            const filteredData = dummyData.find((ele)=>ele.version == selectedVersion);
+            const filteredData = dummyData.find((ele) => ele.version == selectedVersion);
 
-            console.log("filtered data is : ",filteredData);
+            console.log("filtered data is : ", filteredData);
 
             let prepareData = {
 
-                quoteId:filteredData._id, 
-                imageIndex:idx
+                quoteId: filteredData._id,
+                imageIndex: idx
             }
 
             const result = await removeImageFromQuotes(prepareData);
 
-            
+
             setValue('existingImages', existingImages.filter((_, i) => i !== idx));
-            
-            toast.success("image deleted successfully : ",result);
+
+            toast.success("image deleted successfully : ", result);
 
             queryClient.invalidateQueries(['quote']);
 
-        }catch(error){
+        } catch (error) {
 
-            console.log("error is : ",error);
+            console.log("error is : ", error);
 
             handleAxiosError(error);
 
@@ -340,6 +341,7 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
         control,
         name: "items"
     });
+
 
     // handle version change 
 
@@ -411,6 +413,24 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
         return parseInt((subtotalSum + taxAmount + transport + installation));
     };
 
+
+    useEffect(() => {
+        console.log("data is : ",data);
+
+        // Map Excel data to form items if data is present
+        if (data && Array.isArray(data) && data.length > 0) {
+            const mappedItems = data.map(row => ({
+                description: row["Particular"] || "",
+                hsn: "", // or row["HSN"] if available
+                unit: row["Unit"] || "",
+                quantity: Number(row["Qty"]) || 0,
+                finalUnitPrice: Number(row["Unit Price"]) || 0,
+                subtotal: Number(row["Amount"]) || 0,
+            }));
+            setValue("items", mappedItems);
+        }
+    }, [data, setValue]);
+
     return (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
             <div className="bg-white max-w-4xl w-full rounded-lg shadow-lg p-6 overflow-y-auto max-h-[90vh] relative">
@@ -423,30 +443,43 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
 
                     {/* first you have to select the version */}
 
-                    <div className="relative w-60">
-                        <select
-                            {...register("version")}
-                            onChange={handleVersionChange}
-                            value={selectedVersion}
-                            className="block w-full appearance-none px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-800"
-                        >
-                            <option value="">Select</option>
-                            <option value="New Quote">New Quote</option>
-                            {safeDummyData.map((item, index) => (
-                                <option key={index} value={item?.version || ''}>
-                                    {item?.version || 'Unknown Version'}
-                                </option>
-                            ))}
-                        </select>
+                    <div className="flex justify-between ">
 
-                        {/* Dropdown Arrow */}
-                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                            <svg className="w-4 h-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M10 12a1 1 0 0 1-.7-.29l-4-4a1 1 0 0 1 1.4-1.42L10 9.58l3.3-3.3a1 1 0 0 1 1.4 1.42l-4 4A1 1 0 0 1 10 12z" />
-                            </svg>
+                        {/* this for changing the version  */}
+
+                        <div className="relative w-60">
+                            <select
+                                {...register("version")}
+                                onChange={handleVersionChange}
+                                value={selectedVersion}
+                                className="block w-full appearance-none px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-800"
+                            >
+                                <option value="">Select</option>
+                                <option value="New Quote">New Quote</option>
+                                {safeDummyData.map((item, index) => (
+                                    <option key={index} value={item?.version || ''}>
+                                        {item?.version || 'Unknown Version'}
+                                    </option>
+                                ))}
+                            </select>
+
+                            {/* Dropdown Arrow */}
+                            <div className="pointer-events-none absolute right-0 top-4 flex items-center pr-3">
+                                <svg className="w-4 h-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M10 12a1 1 0 0 1-.7-.29l-4-4a1 1 0 0 1 1.4-1.42L10 9.58l3.3-3.3a1 1 0 0 1 1.4 1.42l-4 4A1 1 0 0 1 10 12z" />
+                                </svg>
+                            </div>
                         </div>
-                    </div>
 
+                        {/* upload the xlsx file */}
+
+                        <div>
+
+                            <ExcelReader data={data} setData={setData}></ExcelReader>
+
+                        </div>
+
+                    </div>
 
 
                     <h2 className="font-semibold text-lg mb-2">Items</h2>
@@ -542,7 +575,7 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
                                             <button
                                                 type="button"
                                                 className="ml-2 text-red-600 border border-red-600 rounded px-2 py-1 text-xs"
-                                                onClick={()=>onImageDeleteHandler(url,idx)}
+                                                onClick={() => onImageDeleteHandler(url, idx)}
                                             >
                                                 Delete
                                             </button>

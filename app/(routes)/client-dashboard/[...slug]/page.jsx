@@ -70,8 +70,10 @@ export default function Clients() {
       toast.error("Failed to fetch orders");
     }
   });
+  
 
   // Query for quote data
+
   const { data: quoteData, isLoading: isQuoteLoading } = useQuery({
     queryKey: ['quote', slug?.[0]],
     queryFn: async () => {
@@ -233,6 +235,8 @@ export default function Clients() {
           setClient={setClient}
         />
       </Card>
+
+      
     </div>
   );
 }

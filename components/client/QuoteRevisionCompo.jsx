@@ -71,12 +71,13 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
 
   const handleVendorDetailsChangeHandlerAtQuotes = (e, key) => {
     const { name, value } = e.target;
+
     setEditVendorDataAtQuotes((prev) => ({
       ...prev,
       [key]: {
         ...prev[key],
         [name]: name === "vendorId" ? value :
-          name === "quantity" || name === "costPerUnit" || name === "advance"
+          name === "quantity" || name === "costPerUnit" || name === "advance" || name === "taxPercent"
             ? Number(value)
             : value,
       },
@@ -238,7 +239,9 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
 
   };
 
-  const handleDeleteVendorAtQuotes = async (vendorId, itemIndex, versionIndex) => {
+
+
+  const handleDeleteVendorAtQuotes = async (vendorId, itemIndex, versionIndex,vendorIdx) => {
     try {
 
       const vendor = data[versionIndex].items[itemIndex].vendors.find(v => v.vendorId === vendorId);
@@ -246,7 +249,7 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
       // Check if the vendor is blank (no details filled)
       if (!vendor?.vendorId && !vendor?.description?.trim() && !vendor?.quantity && !vendor?.costPerUnit) {
         // Remove blank vendor directly from Redux state
-        dispatch(deleteVendor({ versionIndex, itemIndex, vendorId }));
+        dispatch(deleteVendor({ versionIndex, itemIndex, vendorId,vendorIdx }));
         toast.success("Blank vendor removed successfully");
         return;
       }
@@ -263,6 +266,8 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
         quoteId: data[versionIndex]._id,
         itemIndex: itemIndex,
         vendorId: vendorId,
+        vendorIndex:vendorIdx,
+
       };
 
       const result = await removeVendorFromQuoteHandler(preparedData);
@@ -271,13 +276,23 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
       dispatch(deleteVendor({ versionIndex, itemIndex, vendorId }));
 
       toast.success("Vendor deleted successfully");
+
+
     } catch (error) {
+
       dispatch(setError(error.message));
       handleAxiosError(error);
+
+
     } finally {
+      
       dispatch(setLoading(false));
+
+      
     }
   };
+
+
 
   const editItemChangeHandler = (e, key) => {
     const { name, value } = e.target;
@@ -367,6 +382,13 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
 
   const handleStatusChange = async (quoteId, newStatus) => {
     try {
+
+      if(newStatus === ""){
+
+        return;
+
+      }
+
       dispatch(setLoading(true));
       const response = await updateQuoteStatus({ quoteId, status: newStatus });
       toast.success(`Quote status updated to ${newStatus}`);
@@ -388,8 +410,7 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
   };
 
 
-  console.log("normalised data is : ", normalizedData);
-
+  console.log("edit vendor details at the quotes ", editVendorDataAtQuotes);
 
 
   return (
@@ -434,6 +455,38 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
                     const isEditing = editingVendorKey === rowKey;
                     const isFirstVendorInFirstItem = isFirstItemInVersion && vendorIdx === 0;
 
+                    console.log("all vendors are : ", item.vendors);
+
+                    let splitVendorList = item.vendors.slice(0, vendorIdx);
+
+                    console.log("splitted vendor list :", splitVendorList);
+
+                    let isVendorExists = splitVendorList.find((ele) => ele.vendorId === vendor.vendorId);
+
+                    console.log("is vendor already exists : ", isVendorExists);
+                    let filteredUniqueVendorArray = [];
+                    let filteredUniqueVendorIdArray = [];
+                    item.vendors.forEach((ele) => {
+
+                      if (!filteredUniqueVendorIdArray.includes(ele.vendorId)) {
+
+                        filteredUniqueVendorArray.push(ele);
+                        filteredUniqueVendorIdArray.push(ele.vendorId);
+
+                      }
+
+                    })
+
+                    console.log("filtered unique vendor array : ", filteredUniqueVendorArray);
+
+                    const totalAdvance = filteredUniqueVendorArray.reduce((acc, currentVal) => acc + currentVal.advance, 0);
+
+                    const totalAmount = item.vendors.reduce((acc, currentVal) => acc + currentVal.costPerUnit * currentVal.quantity, 0);
+
+                    console.log("total advance : ", totalAdvance);
+
+                    console.log("total amount : ", totalAmount);
+
                     return (
                       <tr key={rowKey} className="border-b">
                         {/* Show version and cost details only for first vendor of first item in a version */}
@@ -464,18 +517,25 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
 
                         {vendorIdx === 0 && (
                           <>
-                            <td className="border px-3 py-2" rowSpan={item.vendors.length}>
+                            <td
+                              className="border px-4 py-3 align-top min-w-[250px] max-w-[400px]"
+                              rowSpan={item.vendors.length}
+                            >
                               {isEditingMainItem && editItemDataAtQuotes ? (
-                                <input
+                                <textarea
                                   name="description"
                                   value={editItemDataAtQuotes[mainRowKey]?.description || ""}
                                   onChange={(e) => editItemChangeHandler(e, mainRowKey)}
-                                  className="border px-2 py-2"
+                                  className="w-full px-3 py-2 border rounded-md resize-none h-24 text-sm leading-relaxed border-gray-300"
+                                  placeholder="Enter item description"
                                 />
                               ) : (
-                                item.description
+                                <p className="text-sm text-gray-800 whitespace-pre-wrap">
+                                  {item.description}
+                                </p>
                               )}
                             </td>
+
                             <td className="border px-3 py-2" rowSpan={item.vendors.length}>
                               {isEditingMainItem && editItemDataAtQuotes ? (
                                 <input
@@ -563,21 +623,23 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
 
                         {/* vendor description */}
 
-                        <td className="border px-3 py-2 relative min-w-xs">
+                        <td className="border px-3 py-2 relative min-w-[250px] max-w-[400px]">
                           {isEditing ? (
-                            <input
-                              type="text"
+                            <textarea
                               name="description"
                               value={editVendorDataAtQuotes[rowKey]?.description || ""}
                               onChange={(e) => handleVendorDetailsChangeHandlerAtQuotes(e, rowKey)}
-                              className={`w-full px-2 border rounded h-16 text-start ${!editVendorDataAtQuotes[rowKey]?.description?.trim() ? 'border-red-500' : ''
+                              className={`w-full px-3 py-2 border rounded-md resize-none h-24 text-sm leading-relaxed ${!editVendorDataAtQuotes[rowKey]?.description?.trim() ? 'border-red-500' : 'border-gray-300'
                                 }`}
                               placeholder="Enter description *"
                             />
                           ) : (
-                            vendor.description
+                            <p className="text-sm text-gray-800 whitespace-pre-wrap">
+                              {vendor.description}
+                            </p>
                           )}
                         </td>
+
 
                         {/* quantity */}
 
@@ -613,27 +675,87 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
                               min="0"
                             />
                           ) : (
-                            `₹${vendor.costPerUnit}`
+
+                            <div className="p-2">
+                              {vendorIdx !== item.vendors.length - 1 ? (
+                                <p className="text-center text-sm font-medium text-gray-700">
+                                  ₹{vendor.costPerUnit}
+                                </p>
+                              ) : (
+                                <div className="flex flex-col items-center justify-center pt-2">
+                                  <p className="text-center text-sm font-semibold text-gray-800">
+                                    ₹{vendor.costPerUnit}
+                                  </p>
+                                  <div className="flex flex-col items-center text-xs text-gray-600 border-t pt-2">
+                                    <p>Total Amount:</p>
+                                    <p className="font-bold text-gray-800">₹{totalAmount}</p>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+
                           )}
                         </td>
 
                         {/* advance */}
 
                         <td className="border px-3 py-2 min-w-[150px]">
-                          {isEditing ? (
-                            <input
-                              type="number"
-                              name="advance"
-                              value={editVendorDataAtQuotes[rowKey]?.advance || ""}
-                              onChange={(e) => handleVendorDetailsChangeHandlerAtQuotes(e, rowKey)}
-                              className="w-full px-2 py-1 border rounded"
-                              placeholder="Enter advance amount"
-                              min="0"
-                            />
+                          {isVendorExists === undefined ? (
+                            isEditing ? (
+                              <input
+                                type="number"
+                                name="advance"
+                                value={editVendorDataAtQuotes[rowKey]?.advance || ""}
+                                onChange={(e) => handleVendorDetailsChangeHandlerAtQuotes(e, rowKey)}
+                                className="w-full px-2 py-1 border rounded text-sm"
+                                placeholder="Enter advance amount"
+                                min="0"
+                              />
+                            ) : vendorIdx !== item.vendors.length - 1 ? (
+                              <p className="text-sm text-gray-700 text-center">{vendor.advance}</p>
+                            ) : (
+                              <div className="flex flex-col items-center gap-2">
+                                <p className="text-sm font-medium text-gray-800">{vendor.advance}</p>
+                                <div className="flex flex-col items-center text-xs text-gray-600">
+                                  <p>Total Advance:</p>
+                                  <p className="font-semibold text-gray-800">₹{totalAdvance}</p>
+                                </div>
+                              </div>
+                            )
+                          ) : vendorIdx !== item.vendors.length - 1 ? (
+                            <p className="text-center text-sm text-gray-500">N/A</p>
                           ) : (
-                            `₹${vendor.advance}`
+                            <div className="flex flex-col items-center gap-2">
+                              <p className="text-sm text-gray-500">N/A</p>
+                              <div className="flex flex-col items-center text-xs text-gray-600">
+                                <p>Total Advance:</p>
+                                <p className="font-semibold text-gray-800">₹{totalAdvance}</p>
+                              </div>
+                            </div>
                           )}
                         </td>
+
+                        <td className="border px-3 py-2 min-w-[150px]">
+                          {isVendorExists === undefined ? (
+                            isEditing ? (
+                              <input
+                                type="number"
+                                name="taxPercent"
+                                value={editVendorDataAtQuotes[rowKey]?.taxPercent || ""}
+                                onChange={(e) => handleVendorDetailsChangeHandlerAtQuotes(e, rowKey)}
+                                className="w-full px-2 py-1 border rounded"
+                                placeholder="Enter tax percentage"
+                                min="0"
+                              />
+                            ) : (
+                              `${vendor.taxPercent}%`
+                            )
+                          ) : (
+                            <p className="text-center px-2">N/A</p>
+                          )}
+                        </td>
+
+
 
                         {/* delivery date  */}
 
@@ -683,7 +805,7 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
                           ) : (
                             <Button onClick={() => handleEditVendorAtQuotes(quoteIdx, itemIdx, vendorIdx)}>Edit</Button>
                           )}
-                          <Button className="bg-slate-600 rounded-full p-2" onClick={() => handleDeleteVendorAtQuotes(vendor.vendorId, itemIdx, quoteIdx)}>
+                          <Button className="bg-slate-600 rounded-full p-2" onClick={() => handleDeleteVendorAtQuotes(vendor.vendorId, itemIdx, quoteIdx,vendorIdx)}>
                             Delete
                           </Button>
 
@@ -710,13 +832,18 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
                             )}
                           </td>
                         )}
+
                         {isFirstVendorInFirstItem && (
-                          <td className="border px-3 py-2 w-[200px]" rowSpan={quote.items.reduce((acc, curr) => acc + (curr.vendors?.length || 1), 0)}>
+                          <td
+                            className="border px-4 py-3 min-w-[220px] align-middle"
+                            rowSpan={quote.items.reduce((acc, curr) => acc + (curr.vendors?.length || 1), 0)}
+                          >
                             <select
-                              className="w-full px-24 relative py-1 border rounded bg-white "
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                               value={quote.status || quote_status.DRAFT}
                               onChange={(e) => handleStatusChange(quote._id, e.target.value)}
                             >
+                              <option value="">Select status</option>
                               {Object.values(quote_status).map((status) => (
                                 <option key={status} value={status}>
                                   {status}
@@ -725,6 +852,7 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
                             </select>
                           </td>
                         )}
+
                       </tr>
                     );
                   })
@@ -755,7 +883,7 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
                           name="description"
                           value={editItemDataAtQuotes[mainRowKey]?.description || ""}
                           onChange={(e) => editItemChangeHandler(e, mainRowKey)}
-                          className="border px-2 py-2"
+                          className="border px-2 py-2 min-w-7"
                         />
                       ) : (
                         item.description
@@ -862,13 +990,13 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
       )}
 
       {addNewQuoteFormModal && (
-        <AddNewQuoteForm
 
+
+        <AddNewQuoteForm
           dummyData={data}
           setAddNewQuoteFormModal={setAddNewQuoteFormModal}
           addNewQuotation={addNewQuotation}
           client={client}
-
           queryClient={queryClient}
 
         />

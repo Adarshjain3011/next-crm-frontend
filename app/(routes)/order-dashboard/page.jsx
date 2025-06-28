@@ -165,49 +165,291 @@ export default function OrderDashboard() {
             const hasVendors = vendorAssignments.length > 0;
 
             if (hasVendors) {
-                vendorAssignments.forEach(vendor => {
-                    rows.push({
-                        ...baseData,
-                        'Vendor Name': getVendorName(vendor.vendorId),
-                        'Vendor Item Ref': vendor.itemRef,
-                        'Vendor Assigned Qty': vendor.assignedQty,
-                        'Vendor Order Value': vendor.orderValue,
-                        'Vendor Advance': vendor.advancePaid,
-                        'Vendor Final Payment': vendor.finalPayment,
-                        'Vendor Status': vendor.status,
-                    });
+                // Group vendors by vendorId to calculate combined totals
+                const groupedVendors = order.vendorAssignments.reduce((acc, vendor) => {
+                    if (!acc[vendor.vendorId]) {
+                        acc[vendor.vendorId] = [];
+                    }
+                    acc[vendor.vendorId].push(vendor);
+                    return acc;
+                }, {});
+
+                // Calculate combined totals for each vendor group
+                const vendorTotals = {};
+                Object.entries(groupedVendors).forEach(([vendorId, vendors]) => {
+                    vendorTotals[vendorId] = {
+                        combinedAdvance: vendors.reduce((sum, v) => sum + Number(v.advancePaid || 0), 0),
+                        combinedFinalPayment: vendors.reduce((sum, v) => sum + Number(v.finalPayment || 0), 0)
+                    };
+                });
+
+                // Track which vendors we've already shown totals for
+                const shownVendorTotals = new Set();
+
+                return order.vendorAssignments.map((vendor, vendorIdx) => {
+                    const isFirstOccurrence = !shownVendorTotals.has(vendor.vendorId);
+                    if (isFirstOccurrence) {
+                        shownVendorTotals.add(vendor.vendorId);
+                    }
+
+                    // Calculate how many rows this vendor spans
+                    const vendorRowCount = groupedVendors[vendor.vendorId].length;
+
+                    return (
+                        <tr key={`${order._id}-${vendorIdx}`} className="border-b">
+                            {/* Order details - show only for first vendor */}
+                            {vendorIdx === 0 && (
+                                <>
+                                    <td
+                                        rowSpan={order.vendorAssignments.length}
+                                        className="border px-3 py-2 text-center"
+                                        onClick={() => router.push(`/order-dashboard/${order._id}`)}
+                                    >
+                                        {order._id}
+                                    </td>
+                                    <td
+                                        rowSpan={order.vendorAssignments.length}
+                                        className="border px-3 py-2 text-center"
+                                    >
+                                        {order.clientId?.name || "Unknown"}
+                                    </td>
+                                    <td
+                                        rowSpan={order.vendorAssignments.length}
+                                        className="border px-3 py-2 text-center"
+                                    >
+                                        <p
+                                            className="text-blue-600 text-lg cursor-pointer"
+                                            onClick={() => router.push(`/client-dashboard/${order.clientId?._id}`)}
+                                        >
+                                            {order.quoteVersion}
+                                        </p>
+                                    </td>
+                                    <td
+                                        rowSpan={order.vendorAssignments.length}
+                                        className="border px-3 py-2 text-center"
+                                    >
+                                        ₹{order.transport?.toLocaleString() || 0}
+                                    </td>
+                                    <td
+                                        rowSpan={order.vendorAssignments.length}
+                                        className="border px-3 py-2 text-center"
+                                    >
+                                        ₹{order.installation?.toLocaleString() || 0}
+                                    </td>
+                                    <td
+                                        rowSpan={order.vendorAssignments.length}
+                                        className="border px-3 py-2 text-center"
+                                    >
+                                        ₹{order.gstAmount?.toLocaleString() || 0}
+                                    </td>
+                                    <td
+                                        rowSpan={order.vendorAssignments.length}
+                                        className="border px-3 py-2 text-center"
+                                    >
+                                        ₹{order.totalPayable?.toLocaleString() || 0}
+                                    </td>
+                                    <td
+                                        rowSpan={order.vendorAssignments.length}
+                                        className="border px-3 py-2 text-center"
+                                    >
+                                        ₹{order.orderValue?.toLocaleString() || 0}
+                                    </td>
+                                </>
+                            )}
+
+                            {/* Vendor-specific details */}
+                            <td className="border px-3 py-2 text-center text-blue-500 cursor-pointer" onClick={() => {
+                                setShowVendorDetails(true);
+                                const filteredVendorData = membersData.find((member) => member._id === vendor.vendorId);
+                                setSpecificVendorData(filteredVendorData);
+                            }}>
+                                {vendor?.vendorId && getVendorName(vendor?.vendorId) || "Unknown Vendor"}
+                            </td>
+                            <td className="border px-3 py-2 text-center">
+                                {vendor.itemRef || "-"}
+                            </td>
+                            <td className="border px-3 py-2 text-center">
+                                {vendor.assignedQty || 0}
+                            </td>
+                            <td className="border px-3 py-2 text-center">
+                                ₹{vendor.orderValue?.toLocaleString() || 0}
+                            </td>
+                            {isFirstOccurrence ? (
+                                <td className="border px-3 py-2 text-center" rowSpan={groupedVendors[vendor.vendorId].length}>
+                                    <div className="flex flex-col">
+                                        <span className="text-sm font-medium">₹{vendorTotals[vendor.vendorId].combinedAdvance?.toLocaleString() || 0}</span>
+                                        <span className="text-xs text-gray-500">(Combined)</span>
+                                    </div>
+                                </td>
+                            ) : null}
+                            {isFirstOccurrence ? (
+                                <td className="border px-3 py-2 text-center" rowSpan={groupedVendors[vendor.vendorId].length}>
+                                    <div className="flex flex-col">
+                                        <span className="text-sm font-medium">₹{vendorTotals[vendor.vendorId].combinedFinalPayment?.toLocaleString() || 0}</span>
+                                        <span className="text-xs text-gray-500">(Combined)</span>
+                                    </div>
+                                </td>
+                            ) : null}
+                            <td className="border px-3 py-2 text-center">
+                                <Badge
+                                    variant={vendor.status === "Completed" ? "default" : "outline"}
+                                >
+                                    {vendor.status || "Pending"}
+                                </Badge>
+                            </td>
+
+                            {/* Order status and actions - show only for first vendor */}
+                            {vendorIdx === 0 && (
+                                <>
+                                    <td
+                                        rowSpan={order.vendorAssignments.length}
+                                        className="border px-3 py-2 text-center"
+                                    >
+                                        <select
+                                            className="w-full border p-2 rounded"
+                                            value={order.deliveryStatus}
+                                            onChange={(event) => changeOrderStatus(event, order._id)}
+                                        >
+                                            {
+                                                Object.values(order_status).map((order_stat, index) => (
+                                                    <option key={index} value={order_stat}>{order_stat}</option>
+                                                ))
+                                            }
+                                        </select>
+                                    </td>
+                                    <td
+                                        rowSpan={order.vendorAssignments.length}
+                                        className="border px-3 py-2 text-center"
+                                    >
+                                        {order.documents?.map((doc, index) => (
+                                            <div key={index}>
+                                                <a
+                                                    href={doc}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-blue-500 underline"
+                                                >
+                                                    Document {index + 1}
+                                                </a>
+                                            </div>
+                                        ))}
+                                    </td>
+                                    <td
+                                        rowSpan={order.vendorAssignments.length}
+                                        className="border px-3 py-2 text-center"
+                                    >
+                                        {order.createdAt ? formatDateForInput(order.createdAt) : "N/A"}
+                                    </td>
+                                    <td
+                                        rowSpan={order.vendorAssignments.length}
+                                        className="border px-3 py-2 text-center"
+                                    >
+                                        <div className="flex flex-col gap-3">
+                                            <a href={order?.invoiceId?.invoiceExcelPdfLink ? order?.invoiceId?.invoiceExcelPdfLink : ""} target="_blank">{order?.invoiceId?.invoiceExcelPdfLink ? "PDF Link" : ""}</a>
+                                            <a href={order?.invoiceId?.invoiceExcelLink ? order?.invoiceId?.invoiceExcelLink : ""} target="_blank">{order?.invoiceId?.invoiceExcelLink ? "Excel Link" : ""}</a>
+                                        </div>
+                                    </td>
+                                    <td
+                                        rowSpan={order.vendorAssignments.length}
+                                        className="border px-3 py-2 text-center gap-6"
+                                    >
+                                        <div className="flex flex-col gap-2">
+                                            <Button onClick={() => generateInvoiceHandler(order)}>
+                                                Generate Invoice
+                                            </Button>
+                                            <Button className="pt-7" onClick={() => {
+                                                setUploadInvoiceModal(true);
+                                                setSelectedOrderData(order);
+                                            }}>
+                                                Upload Invoice
+                                            </Button>
+                                        </div>
+                                    </td>
+                                    <td
+                                        rowSpan={order.vendorAssignments.length}
+                                        className="border px-3 py-2 text-center"
+                                    >
+                                        <HiOutlineArrowRight
+                                            className="cursor-pointer"
+                                            size={24}
+                                            onClick={() => router.push(`/order-dashboard/${order._id}`)}
+                                        />
+                                    </td>
+                                </>
+                            )}
+                        </tr>
+                    );
                 });
             } else {
-                // If no vendors, push just the base data
-                rows.push({
-                    ...baseData,
-                    'Vendor Name': 'No Vendors',
-                    'Vendor Item Ref': 'N/A',
-                    'Vendor Assigned Qty': 'N/A',
-                    'Vendor Order Value': 'N/A',
-                    'Vendor Advance': 'N/A',
-                    'Vendor Final Payment': 'N/A',
-                    'Vendor Status': 'N/A',
-                });
+                // Render single row for orders without vendors
+                return (
+                    <tr key={order._id} className="border-b">
+                        <td className="border px-3 py-2 text-center">{order._id}</td>
+                        <td className="border px-3 py-2 text-center">
+                            {order.clientId?.name || "Unknown"}
+                        </td>
+                        <td className="border px-3 py-2 text-center">
+                            <p
+                                className="text-blue-600 text-lg cursor-pointer"
+                                onClick={() => router.push(`/client-dashboard/${order.clientId?._id}`)}
+                            >
+                                {order.quoteVersion}
+                            </p>
+                        </td>
+                        <td className="border px-3 py-2 text-center">
+                            ₹{order.transport?.toLocaleString() || 0}
+                        </td>
+                        <td className="border px-3 py-2 text-center">
+                            ₹{order.installation?.toLocaleString() || 0}
+                        </td>
+                        <td className="border px-3 py-2 text-center">
+                            ₹{order.gstAmount?.toLocaleString() || 0}
+                        </td>
+                        <td className="border px-3 py-2 text-center">
+                            ₹{order.totalPayable?.toLocaleString() || 0}
+                        </td>
+                        <td className="border px-3 py-2 text-center">
+                            ₹{order.orderValue?.toLocaleString() || 0}
+                        </td>
+                        <td colSpan={7} className="text-center text-gray-500">
+                            No Vendor Assignments
+                        </td>
+                        <td className="border px-3 py-2 text-center">
+                            <Badge
+                                variant={order.deliveryStatus === "Delivered" ? "default" : "outline"}
+                            >
+                                {order.deliveryStatus}
+                            </Badge>
+                        </td>
+                        <td className="border px-3 py-2 text-center">
+                            {order.documents?.map((doc, index) => (
+                                <div key={index}>
+                                    <a
+                                        href={doc}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-500 underline"
+                                    >
+                                        Document {index + 1}
+                                    </a>
+                                </div>
+                            ))}
+                        </td>
+                        <td className="border px-3 py-2 text-center">
+                            <Button onClick={() => generateInvoiceHandler(order)}>
+                                Generate Invoice
+                            </Button>
+                        </td>
+                        <td className="border px-3 py-2 text-center">
+                            <HiOutlineArrowRight
+                                className="cursor-pointer"
+                                size={24}
+                                onClick={() => router.push(`/order-dashboard/${order._id}`)}
+                            />
+                        </td>
+                    </tr>
+                );
             }
-
-            // Add additional rows for extra invoice links if needed
-            if (order.invoiceId?.invoiceExcelPdfLinks && Array.isArray(order.invoiceId.invoiceExcelPdfLinks)) {
-                order.invoiceId.invoiceExcelPdfLinks.forEach((link, index) => {
-                    rows.push({
-                        ...baseData,
-                        'Vendor Name': `Extra Invoice Link ${index + 1}`,
-                        'Vendor Item Ref': '',
-                        'Vendor Assigned Qty': '',
-                        'Vendor Order Value': '',
-                        'Vendor Advance': '',
-                        'Vendor Final Payment': '',
-                        'Vendor Status': '',
-                        'Invoice Pdf Url': link,
-                    });
-                });
-            }
-
         });
 
         return rows;
@@ -354,194 +596,221 @@ export default function OrderDashboard() {
                                         const hasVendors = Array.isArray(order.vendorAssignments) && order.vendorAssignments.length > 0;
 
                                         if (hasVendors) {
-                                            return order.vendorAssignments.map((vendor, vendorIdx) => (
-                                                <tr key={`${order._id}-${vendorIdx}`} className="border-b">
-                                                    {/* Order details - show only for first vendor */}
-                                                    {vendorIdx === 0 && (
-                                                        <>
-                                                            <td
-                                                                rowSpan={order.vendorAssignments.length}
-                                                                className="border px-3 py-2 text-center"
-                                                                onClick={() => router.push(`/order-dashboard/${order._id}`)}
-                                                            >
-                                                                {order._id}
-                                                            </td>
-                                                            <td
-                                                                rowSpan={order.vendorAssignments.length}
-                                                                className="border px-3 py-2 text-center"
-                                                            >
-                                                                {order.clientId?.name || "Unknown"}
-                                                            </td>
-                                                            <td
-                                                                rowSpan={order.vendorAssignments.length}
-                                                                className="border px-3 py-2 text-center"
-                                                            >
-                                                                <p
-                                                                    className="text-blue-600 text-lg cursor-pointer"
-                                                                    onClick={() => router.push(`/client-dashboard/${order.clientId?._id}`)}
-                                                                >
-                                                                    {order.quoteVersion}
-                                                                </p>
-                                                            </td>
-                                                            <td
-                                                                rowSpan={order.vendorAssignments.length}
-                                                                className="border px-3 py-2 text-center"
-                                                            >
-                                                                ₹{order.transport?.toLocaleString() || 0}
-                                                            </td>
-                                                            <td
-                                                                rowSpan={order.vendorAssignments.length}
-                                                                className="border px-3 py-2 text-center"
-                                                            >
-                                                                ₹{order.installation?.toLocaleString() || 0}
-                                                            </td>
-                                                            <td
-                                                                rowSpan={order.vendorAssignments.length}
-                                                                className="border px-3 py-2 text-center"
-                                                            >
-                                                                ₹{order.gstAmount?.toLocaleString() || 0}
-                                                            </td>
-                                                            <td
-                                                                rowSpan={order.vendorAssignments.length}
-                                                                className="border px-3 py-2 text-center"
-                                                            >
-                                                                ₹{order.totalPayable?.toLocaleString() || 0}
-                                                            </td>
-                                                            <td
-                                                                rowSpan={order.vendorAssignments.length}
-                                                                className="border px-3 py-2 text-center"
-                                                            >
-                                                                ₹{order.orderValue?.toLocaleString() || 0}
-                                                            </td>
-                                                        </>
-                                                    )}
+                                            // Group vendors by vendorId to calculate combined totals
+                                            const groupedVendors = order.vendorAssignments.reduce((acc, vendor) => {
+                                                if (!acc[vendor.vendorId]) {
+                                                    acc[vendor.vendorId] = [];
+                                                }
+                                                acc[vendor.vendorId].push(vendor);
+                                                return acc;
+                                            }, {});
 
+                                            // Calculate combined totals for each vendor group
+                                            const vendorTotals = {};
+                                            Object.entries(groupedVendors).forEach(([vendorId, vendors]) => {
+                                                vendorTotals[vendorId] = {
+                                                    combinedAdvance: vendors.reduce((sum, v) => sum + Number(v.advancePaid || 0), 0),
+                                                    combinedFinalPayment: vendors.reduce((sum, v) => sum + Number(v.finalPayment || 0), 0)
+                                                };
+                                            });
 
-                                                    {/* Vendor-specific details */}
-                                                    <td className="border px-3 py-2 text-center text-blue-500 cursor-pointer" onClick={() => {
-                                                        setShowVendorDetails(true);
-                                                        const filteredVendorData = membersData.find((member) => member._id === vendor.vendorId);
-                                                        setSpecificVendorData(filteredVendorData);
-                                                    }}>
-                                                        {vendor?.vendorId && getVendorName(vendor?.vendorId) || "Unknown Vendor"}
-                                                    </td>
-                                                    <td className="border px-3 py-2 text-center">
-                                                        {vendor.itemRef || "-"}
-                                                    </td>
-                                                    <td className="border px-3 py-2 text-center">
-                                                        {vendor.assignedQty || 0}
-                                                    </td>
-                                                    <td className="border px-3 py-2 text-center">
-                                                        ₹{vendor.orderValue?.toLocaleString() || 0}
-                                                    </td>
-                                                    <td className="border px-3 py-2 text-center">
-                                                        ₹{vendor.advancePaid?.toLocaleString() || 0}
-                                                    </td>
-                                                    <td className="border px-3 py-2 text-center">
-                                                        ₹{vendor.finalPayment?.toLocaleString() || 0}
-                                                    </td>
-                                                    <td className="border px-3 py-2 text-center">
-                                                        <Badge
-                                                            variant={vendor.status === "Completed" ? "default" : "outline"}
-                                                        >
-                                                            {vendor.status || "Pending"}
-                                                        </Badge>
-                                                    </td>
+                                            // Track which vendors we've already shown totals for
+                                            const shownVendorTotals = new Set();
 
-                                                    {/* Order status and actions - show only for first vendor */}
-                                                    {vendorIdx === 0 && (
-                                                        <>
-                                                            <td
-                                                                rowSpan={order.vendorAssignments.length}
-                                                                className="border px-3 py-2 text-center"
-                                                            >
-                                                                <select
-                                                                    className="w-full border p-2 rounded"
-                                                                    value={order.deliveryStatus}
-                                                                    onChange={(event) => changeOrderStatus(event, order._id)}
-                                                                >
-                                                                    {
+                                            return order.vendorAssignments.map((vendor, vendorIdx) => {
+                                                const isFirstOccurrence = !shownVendorTotals.has(vendor.vendorId);
+                                                if (isFirstOccurrence) {
+                                                    shownVendorTotals.add(vendor.vendorId);
+                                                }
 
-                                                                        Object.values(order_status).map((order_stat, index) => (
+                                                // Calculate how many rows this vendor spans
+                                                const vendorRowCount = groupedVendors[vendor.vendorId].length;
 
-                                                                            <option value={order_stat}>{order_stat}</option>
-
-                                                                        ))
-                                                                    }
-
-                                                                </select>
-
-                                                            </td>
-                                                            <td
-                                                                rowSpan={order.vendorAssignments.length}
-                                                                className="border px-3 py-2 text-center"
-                                                            >
-                                                                {order.documents?.map((doc, index) => (
-                                                                    <div key={index}>
-                                                                        <a
-                                                                            href={doc}
-                                                                            target="_blank"
-                                                                            rel="noopener noreferrer"
-                                                                            className="text-blue-500 underline"
-                                                                        >
-                                                                            Document {index + 1}
-                                                                        </a>
-                                                                    </div>
-                                                                ))}
-                                                            </td>
-                                                            <td
-                                                                rowSpan={order.vendorAssignments.length}
-                                                                className="border px-3 py-2 text-center"
-                                                            >
-                                                                {order.createdAt ? formatDateForInput(order.createdAt) : "N/A"}
-                                                            </td>
-
-                                                            <td
-                                                                rowSpan={order.vendorAssignments.length}
-                                                                className="border px-3 py-2 text-center"
-                                                            >
-                                                                <div className="flex flex-col gap-3">
-
-                                                                    <a href={order?.invoiceId?.invoiceExcelPdfLink ? order?.invoiceId?.invoiceExcelPdfLink : ""} target="_blank">{order?.invoiceId?.invoiceExcelPdfLink ? "PDF Link" : ""}</a>
-                                                                    <a href={order?.invoiceId?.invoiceExcelLink ? order?.invoiceId?.invoiceExcelLink : ""} target="_blank">{order?.invoiceId?.invoiceExcelLink ? "Excel Link" : ""}</a>
-                                                                </div>
-
-                                                            </td>
-
-                                                            <td
-                                                                rowSpan={order.vendorAssignments.length}
-                                                                className="border px-3 py-2 text-center gap-6"
-                                                            >
-                                                                <div className="flex flex-col gap-2">
-
-                                                                    <Button onClick={() => generateInvoiceHandler(order)}>
-                                                                        Generate Invoice
-                                                                    </Button>
-
-                                                                    <Button className="pt-7" onClick={() => {
-                                                                        setUploadInvoiceModal(true);
-                                                                        setSelectedOrderData(order);
-                                                                    }}>
-                                                                        Upload Invoice
-                                                                    </Button>
-
-                                                                </div>
-
-                                                            </td>
-                                                            <td
-                                                                rowSpan={order.vendorAssignments.length}
-                                                                className="border px-3 py-2 text-center"
-                                                            >
-                                                                <HiOutlineArrowRight
-                                                                    className="cursor-pointer"
-                                                                    size={24}
+                                                return (
+                                                    <tr key={`${order._id}-${vendorIdx}`} className="border-b">
+                                                        {/* Order details - show only for first vendor */}
+                                                        {vendorIdx === 0 && (
+                                                            <>
+                                                                <td
+                                                                    rowSpan={order.vendorAssignments.length}
+                                                                    className="border px-3 py-2 text-center"
                                                                     onClick={() => router.push(`/order-dashboard/${order._id}`)}
-                                                                />
+                                                                >
+                                                                    {order._id}
+                                                                </td>
+                                                                <td
+                                                                    rowSpan={order.vendorAssignments.length}
+                                                                    className="border px-3 py-2 text-center"
+                                                                >
+                                                                    {order.clientId?.name || "Unknown"}
+                                                                </td>
+                                                                <td
+                                                                    rowSpan={order.vendorAssignments.length}
+                                                                    className="border px-3 py-2 text-center"
+                                                                >
+                                                                    <p
+                                                                        className="text-blue-600 text-lg cursor-pointer"
+                                                                        onClick={() => router.push(`/client-dashboard/${order.clientId?._id}`)}
+                                                                    >
+                                                                        {order.quoteVersion}
+                                                                    </p>
+                                                                </td>
+                                                                <td
+                                                                    rowSpan={order.vendorAssignments.length}
+                                                                    className="border px-3 py-2 text-center"
+                                                                >
+                                                                    ₹{order.transport?.toLocaleString() || 0}
+                                                                </td>
+                                                                <td
+                                                                    rowSpan={order.vendorAssignments.length}
+                                                                    className="border px-3 py-2 text-center"
+                                                                >
+                                                                    ₹{order.installation?.toLocaleString() || 0}
+                                                                </td>
+                                                                <td
+                                                                    rowSpan={order.vendorAssignments.length}
+                                                                    className="border px-3 py-2 text-center"
+                                                                >
+                                                                    ₹{order.gstAmount?.toLocaleString() || 0}
+                                                                </td>
+                                                                <td
+                                                                    rowSpan={order.vendorAssignments.length}
+                                                                    className="border px-3 py-2 text-center"
+                                                                >
+                                                                    ₹{order.totalPayable?.toLocaleString() || 0}
+                                                                </td>
+                                                                <td
+                                                                    rowSpan={order.vendorAssignments.length}
+                                                                    className="border px-3 py-2 text-center"
+                                                                >
+                                                                    ₹{order.orderValue?.toLocaleString() || 0}
+                                                                </td>
+                                                            </>
+                                                        )}
+
+                                                        {/* Vendor-specific details */}
+                                                        <td className="border px-3 py-2 text-center text-blue-500 cursor-pointer" onClick={() => {
+                                                            setShowVendorDetails(true);
+                                                            const filteredVendorData = membersData.find((member) => member._id === vendor.vendorId);
+                                                            setSpecificVendorData(filteredVendorData);
+                                                        }}>
+                                                            {vendor?.vendorId && getVendorName(vendor?.vendorId) || "Unknown Vendor"}
+                                                        </td>
+                                                        <td className="border px-3 py-2 text-center">
+                                                            {vendor.itemRef || "-"}
+                                                        </td>
+                                                        <td className="border px-3 py-2 text-center">
+                                                            {vendor.assignedQty || 0}
+                                                        </td>
+                                                        <td className="border px-3 py-2 text-center">
+                                                            ₹{vendor.orderValue?.toLocaleString() || 0}
+                                                        </td>
+                                                        {isFirstOccurrence ? (
+                                                            <td className="border px-3 py-2 text-center" rowSpan={groupedVendors[vendor.vendorId].length}>
+                                                                <div className="flex flex-col">
+                                                                    <span className="text-sm font-medium">₹{vendorTotals[vendor.vendorId].combinedAdvance?.toLocaleString() || 0}</span>
+                                                                    <span className="text-xs text-gray-500">(Combined)</span>
+                                                                </div>
                                                             </td>
-                                                        </>
-                                                    )}
-                                                </tr>
-                                            ));
+                                                        ) : null}
+                                                        {isFirstOccurrence ? (
+                                                            <td className="border px-3 py-2 text-center" rowSpan={groupedVendors[vendor.vendorId].length}>
+                                                                <div className="flex flex-col">
+                                                                    <span className="text-sm font-medium">₹{vendorTotals[vendor.vendorId].combinedFinalPayment?.toLocaleString() || 0}</span>
+                                                                    <span className="text-xs text-gray-500">(Combined)</span>
+                                                                </div>
+                                                            </td>
+                                                        ) : null}
+                                                        <td className="border px-3 py-2 text-center">
+                                                            <Badge
+                                                                variant={vendor.status === "Completed" ? "default" : "outline"}
+                                                            >
+                                                                {vendor.status || "Pending"}
+                                                            </Badge>
+                                                        </td>
+
+                                                        {/* Order status and actions - show only for first vendor */}
+                                                        {vendorIdx === 0 && (
+                                                            <>
+                                                                <td
+                                                                    rowSpan={order.vendorAssignments.length}
+                                                                    className="border px-3 py-2 text-center"
+                                                                >
+                                                                    <select
+                                                                        className="w-full border p-2 rounded"
+                                                                        value={order.deliveryStatus}
+                                                                        onChange={(event) => changeOrderStatus(event, order._id)}
+                                                                    >
+                                                                        {
+                                                                            Object.values(order_status).map((order_stat, index) => (
+                                                                                <option key={index} value={order_stat}>{order_stat}</option>
+                                                                            ))
+                                                                        }
+                                                                    </select>
+                                                                </td>
+                                                                <td
+                                                                    rowSpan={order.vendorAssignments.length}
+                                                                    className="border px-3 py-2 text-center"
+                                                                >
+                                                                    {order.documents?.map((doc, index) => (
+                                                                        <div key={index}>
+                                                                            <a
+                                                                                href={doc}
+                                                                                target="_blank"
+                                                                                rel="noopener noreferrer"
+                                                                                className="text-blue-500 underline"
+                                                                            >
+                                                                                Document {index + 1}
+                                                                            </a>
+                                                                        </div>
+                                                                    ))}
+                                                                </td>
+                                                                <td
+                                                                    rowSpan={order.vendorAssignments.length}
+                                                                    className="border px-3 py-2 text-center"
+                                                                >
+                                                                    {order.createdAt ? formatDateForInput(order.createdAt) : "N/A"}
+                                                                </td>
+                                                                <td
+                                                                    rowSpan={order.vendorAssignments.length}
+                                                                    className="border px-3 py-2 text-center"
+                                                                >
+                                                                    <div className="flex flex-col gap-3">
+                                                                        <a href={order?.invoiceId?.invoiceExcelPdfLink ? order?.invoiceId?.invoiceExcelPdfLink : ""} target="_blank">{order?.invoiceId?.invoiceExcelPdfLink ? "PDF Link" : ""}</a>
+                                                                        <a href={order?.invoiceId?.invoiceExcelLink ? order?.invoiceId?.invoiceExcelLink : ""} target="_blank">{order?.invoiceId?.invoiceExcelLink ? "Excel Link" : ""}</a>
+                                                                    </div>
+                                                                </td>
+                                                                <td
+                                                                    rowSpan={order.vendorAssignments.length}
+                                                                    className="border px-3 py-2 text-center gap-6"
+                                                                >
+                                                                    <div className="flex flex-col gap-2">
+                                                                        <Button onClick={() => generateInvoiceHandler(order)}>
+                                                                            Generate Invoice
+                                                                        </Button>
+                                                                        <Button className="pt-7" onClick={() => {
+                                                                            setUploadInvoiceModal(true);
+                                                                            setSelectedOrderData(order);
+                                                                        }}>
+                                                                            Upload Invoice
+                                                                        </Button>
+                                                                    </div>
+                                                                </td>
+                                                                <td
+                                                                    rowSpan={order.vendorAssignments.length}
+                                                                    className="border px-3 py-2 text-center"
+                                                                >
+                                                                    <HiOutlineArrowRight
+                                                                        className="cursor-pointer"
+                                                                        size={24}
+                                                                        onClick={() => router.push(`/order-dashboard/${order._id}`)}
+                                                                    />
+                                                                </td>
+                                                            </>
+                                                        )}
+                                                    </tr>
+                                                );
+                                            });
                                         } else {
                                             // Render single row for orders without vendors
                                             return (
