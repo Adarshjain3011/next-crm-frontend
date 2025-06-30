@@ -42,6 +42,7 @@ import { updateEnqueryDetails } from "@/lib/api";
 import DeleteConfirmationModal from "@/components/client/DeleteEnqueryConfirmationModal";
 import MultiUserSelect from "@/components/common/MultiUserSelect";
 
+import { formatDate } from "@/lib/utils";
 
 export default function ClientDashboardPage() {
 
@@ -102,7 +103,7 @@ export default function ClientDashboardPage() {
                 ? new Date(client.createdAt).toLocaleDateString() === new Date(filters.date).toLocaleDateString()
                 : true;
             const statusMatch = filters.status ? client.status === filters.status : true;
-            const salesPersonMatch = filters.salesPerson ? client.assignedTo?._id === filters.salesPerson : true;
+            const salesPersonMatch = filters.salesPerson ? client.assignedTo.find((person) => person._id == filters.salesPerson) : true;
             return emailMatch && nameMatch && phoneMatch && dateMatch && statusMatch && salesPersonMatch;
         });
     }, [clients, filters, isSales, user]);
@@ -147,15 +148,6 @@ export default function ClientDashboardPage() {
         });
     };
 
-    const formatDate = (dateString) => {
-        if (!dateString) return 'N/A';
-        try {
-            return format(parseISO(dateString), 'dd MMM yyyy, hh:mm a');
-        } catch {
-            return 'Invalid date';
-        }
-    };
-
     const dynamicHeadingNames = useMemo(() => {
         const headings = [...enqueryHeadingName];
         if (!isAdmin) {
@@ -179,7 +171,7 @@ export default function ClientDashboardPage() {
             date: formatDate(data.createdAt),
             status: data.status,
             requirements: data.requirement,
-            assignedTo: data.assignedTo?.name || "",
+            assignedTo: data.assignedTo?.map((item) => item.name).join(",") || "",
             assignedBy: data.assignedBy?.name || "",
             assignmentDate: formatDate(data.assignmentDate),
             sourceWebsite: data?.sourceWebsite || "",
@@ -205,7 +197,6 @@ export default function ClientDashboardPage() {
     }
 
 
-
     async function applyChangesHandler(clientId) {
 
         let finalpayload = {
@@ -228,11 +219,6 @@ export default function ClientDashboardPage() {
 
         }
     }
-
-
-    console.log("client id is : ",clients);
-
-    console.log("members data is : ",membersData);
 
 
     return (
@@ -346,6 +332,8 @@ export default function ClientDashboardPage() {
                                         return (
 
                                             <TableRow key={client._id} className="cursor-pointer">
+
+                                                
                                                 <TableCell>
 
                                                     <div className="flex gap-4">
@@ -390,6 +378,7 @@ export default function ClientDashboardPage() {
                                                     </div>
 
                                                 </TableCell>
+
                                                 <TableCell>
                                                     {isRowEditing === client._id ? (
                                                         <input
@@ -403,6 +392,7 @@ export default function ClientDashboardPage() {
                                                         <p>{client.name || "NA"}</p>
                                                     )}
                                                 </TableCell>
+
                                                 <TableCell>
                                                     {isRowEditing === client._id ? (
                                                         <input
@@ -413,9 +403,12 @@ export default function ClientDashboardPage() {
                                                             onChange={e => setEditClientDetails({ ...editClientDetails, email: e.target.value })}
                                                         />
                                                     ) : (
+
                                                         <p>{client.email || "NA"}</p>
+
                                                     )}
                                                 </TableCell>
+                                   
                                                 <TableCell>
                                                     {isRowEditing === client._id ? (
                                                         <input
@@ -429,6 +422,7 @@ export default function ClientDashboardPage() {
                                                         <p>{client.requirement || "NA"}</p>
                                                     )}
                                                 </TableCell>
+
                                                 <TableCell>
                                                     {isRowEditing === client._id ? (
                                                         <input
@@ -442,6 +436,9 @@ export default function ClientDashboardPage() {
                                                         <p>{client.sourcePlatform || "NA"}</p>
                                                     )}
                                                 </TableCell>
+
+                                                {/* phone */}
+
                                                 <TableCell>
                                                     {isRowEditing === client._id ? (
                                                         <input
@@ -455,6 +452,7 @@ export default function ClientDashboardPage() {
                                                         <p>{client.phone || "NA"}</p>
                                                     )}
                                                 </TableCell>
+
                                                 <TableCell>
                                                     {isRowEditing === client._id ? (
                                                         <input
@@ -468,6 +466,9 @@ export default function ClientDashboardPage() {
                                                         <p>{client.sourceWebsite || "NA"}</p>
                                                     )}
                                                 </TableCell>
+
+                                                {/* product link */}
+
                                                 <TableCell>
                                                     {isRowEditing === client._id ? (
                                                         <input
@@ -492,7 +493,14 @@ export default function ClientDashboardPage() {
                                                         </p>
                                                     )}
                                                 </TableCell>
+
+                                                {/* date is : */}
+
                                                 <TableCell>{formatDate(client.createdAt)}</TableCell>
+
+                                                {/* created By */}
+
+                                                <TableCell>{client.createdBy?.name || "N/A"}</TableCell>
 
                                                 {!isAdmin && (
                                                     <TableCell>
@@ -525,7 +533,7 @@ export default function ClientDashboardPage() {
                                                             enqueryId={client._id}
                                                             queryClient={queryClient}
                                                         />
-                
+
                                                     </TableCell>
                                                 ) : (
                                                     <TableCell>
@@ -601,8 +609,8 @@ export default function ClientDashboardPage() {
                     </CardContent>
                 </Card>
 
-
             </div>
+
         </RoleGuard>
     );
 }

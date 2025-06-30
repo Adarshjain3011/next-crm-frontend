@@ -61,7 +61,7 @@ export default function AllInvoicesPage() {
         setInvoices(response);
         setFilteredInvoices(response);
       } catch (error) {
-        console.error('Error fetching invoices:', error);
+        og.error('Error fetching invoices:', error);
         toast.error('Failed to load invoices');
       } finally {
         setIsLoading(false);

@@ -67,10 +67,7 @@ const NotificationPage = () => {
       }
     } catch (error) {
       console.log("error is : ", error);
-      // handleAxiosError(error);
-
-      throw error;
-
+      handleAxiosError(error);
     }
   }
 
@@ -111,10 +108,10 @@ const NotificationPage = () => {
     }
   }, [dispatch, membersData.length]);
 
+
+
   let filtereSalesUserData = membersData && membersData.filter((data) => data.role == user_role.sales);
-
   let filterNotificationData = notifications.filter((data) => {
-
     const dateMatch = filters.date
       ? new Date(data.createdAt).toLocaleDateString() === new Date(filters.date).toLocaleDateString()
       : true;
@@ -125,7 +122,7 @@ const NotificationPage = () => {
 
   })
 
-  
+
 
   // now i have to implement filter on the basis of the sales person 
 
@@ -190,7 +187,6 @@ const NotificationPage = () => {
 
         </div>
 
-
         {filterNotificationData.length === 0 ? (
           <div className="text-center text-muted-foreground py-24">
             <IoNotifications size={56} className="mx-auto mb-4 text-gray-300" />
@@ -237,5 +233,4 @@ const NotificationPage = () => {
 };
 
 export default NotificationPage;
-
 

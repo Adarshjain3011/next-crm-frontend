@@ -35,8 +35,6 @@ export default function UploadInvoiceCompo({ order, setUploadInvoiceModal }) {
             return;
         }
 
-        console.log("order invoice id is ",order);
-
         if(!order.invoiceId || !order.invoiceId._id){
 
             toast.error("first you have to create an invoice ");

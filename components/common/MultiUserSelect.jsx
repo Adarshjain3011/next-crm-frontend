@@ -7,8 +7,6 @@ import toast from "react-hot-toast";
 
 function getInitials(name) {
 
-  console.log("name is : ".name);
-
   return name
     .split(" ")
     .map((n) => n[0])
@@ -20,14 +18,7 @@ export default function MultiUserSelect({ options, selected, setSelected, label 
 
   const [open, setOpen] = useState(false);
 
-  console.log("enquery id in multiUser select : ", enqueryId);
-
-  console.log("options selected setSelected label ", options, selected);
-
-
   const handleSelect = async (user) => {
-
-    console.log("handle select ke andar : ", user);
 
     if (selected.some((u) => u._id === user._id)) {
 
@@ -42,8 +33,6 @@ export default function MultiUserSelect({ options, selected, setSelected, label 
         }
 
         const result = await removeSalesPersonFromEnquery(preparedData);
-
-        console.log("result ", result);
 
         queryClient.invalidateQueries(['clientQueries']);
         setSelected(selected.filter((u) => u._id !== user._id));
@@ -69,8 +58,6 @@ export default function MultiUserSelect({ options, selected, setSelected, label 
         }
 
         const result = await assignSalesPersonToEnquery(preparedData);
-
-        console.log("result ", result);
 
         queryClient.invalidateQueries(['clientQueries']);
 

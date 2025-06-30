@@ -4,35 +4,21 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useReactTable, getCoreRowModel, flexRender } from '@tanstack/react-table';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-
 import { TiEdit } from "react-icons/ti";
 import { MdAddBusiness, MdDeleteForever, MdSave } from "react-icons/md";
-
 import { Input } from '@/components/ui/input';
-
 import { useQueryClient, useQuery } from '@tanstack/react-query';
-
 import { useParams } from 'next/navigation';
-
 import { flattenObject } from '@/lib/utils';
-
 import toast from 'react-hot-toast';
-
 import { FollowUpCompo } from '@/components/client/FollowUpCompo';
-
 import { qouteTablesHeader } from "../../../../lib/data";
-
 import QuoteRivisionComponent from '@/components/client/QuoteRevisionCompo';
-
 import { getAllQuote } from '@/lib/api';
-
 import { useSelector, useDispatch } from 'react-redux';
 import { setQuoteData } from '@/app/store/slice/quoteSlice';
-
 import { handleAxiosError } from '@/lib/handleAxiosError';
-
 import { fetchAllUserQueries } from '@/lib/api';
-
 import { getSpecifiEnqueryDetails } from '@/lib/api';
 import { PageLoader } from '@/components/ui/loader';
 
@@ -224,7 +210,8 @@ export default function Clients() {
         </div>
 
         {/* Follow Ups Component */}
-        <FollowUpCompo client={client} setClient={setClient} />
+        
+        <FollowUpCompo client={client} setClient={setClient}/>
 
         {/* Quotes revisions and other info */}
         <QuoteRivisionComponent

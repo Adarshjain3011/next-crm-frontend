@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { HiOutlineArrowRight } from "react-icons/hi";
 import { getAllOrders, updateOrderStatus } from "@/lib/api";
 import { order_status, orderTableHeaders } from "@/lib/data";
 import { formatDateForInput } from "@/lib/utils";
@@ -21,14 +20,11 @@ import { setOrderData, setLoading, setError } from "@/app/store/slice/invoiceSli
 import RoleGuard from "@/components/auth/RoleGuard";
 import { useRole } from "@/app/hooks/useRole";
 import { user_role } from "@/lib/data";
-import axios from "axios";
 import { store } from "@/app/store/store";
 import { handleAxiosError } from "@/lib/handleAxiosError";
 import UploadInvoiceCompo from "@/components/common/UploadInvoiceCompo";
 import DownloadExcelButton from "@/components/common/DownloadExcelButton";
 import { TableLoader } from '@/components/ui/loader';
-import { Changa } from 'next/font/google';
-
 import { setAllMembersData } from '@/app/store/slice/membersSlice';
 import { getAllMembersData } from '@/lib/api';
 
@@ -37,22 +33,19 @@ export default function OrderDashboard() {
 
     const router = useRouter();
     const { isAdmin, isSales, user } = useRole();
-
     const [uploadInvoiceModal, setUploadInvoiceModal] = useState(false);
-
     const [selectedOrderData, setSelectedOrderData] = useState(null);
 
     const dispatch = useDispatch();
-
 
     const [filters, setFilters] = useState({
         name: "",
         status: "",
         date: "",
     });
+
     const [showVendorDetails, setShowVendorDetails] = useState(false);
     const [specificVendorData, setSpecificVendorData] = useState(null);
-
 
     // React Query for fetching orders
     const { data: orders = [], isLoading, error } = useQuery({
@@ -68,11 +61,7 @@ export default function OrderDashboard() {
         }
     });
 
-
-
     let membersData = useSelector((state) => state.members.data);
-
-
 
     let filteredOrders = orders.filter(order => {
         // Filter by name (client name)
@@ -299,6 +288,7 @@ export default function OrderDashboard() {
                             </td>
 
                             {/* Order status and actions - show only for first vendor */}
+
                             {vendorIdx === 0 && (
                                 <>
                                     <td
@@ -365,18 +355,10 @@ export default function OrderDashboard() {
                                             </Button>
                                         </div>
                                     </td>
-                                    <td
-                                        rowSpan={order.vendorAssignments.length}
-                                        className="border px-3 py-2 text-center"
-                                    >
-                                        <HiOutlineArrowRight
-                                            className="cursor-pointer"
-                                            size={24}
-                                            onClick={() => router.push(`/order-dashboard/${order._id}`)}
-                                        />
-                                    </td>
+
                                 </>
                             )}
+
                         </tr>
                     );
                 });
@@ -440,13 +422,7 @@ export default function OrderDashboard() {
                                 Generate Invoice
                             </Button>
                         </td>
-                        <td className="border px-3 py-2 text-center">
-                            <HiOutlineArrowRight
-                                className="cursor-pointer"
-                                size={24}
-                                onClick={() => router.push(`/order-dashboard/${order._id}`)}
-                            />
-                        </td>
+
                     </tr>
                 );
             }
@@ -468,7 +444,7 @@ export default function OrderDashboard() {
 
             }
 
-            const result = await updateOrderStatus(preparedData);
+            await updateOrderStatus(preparedData);
 
         } catch (error) {
 
@@ -520,7 +496,6 @@ export default function OrderDashboard() {
                         />
                     )}
                 </div>
-
 
                 {/* Filters Section */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 mb-6">
@@ -796,16 +771,6 @@ export default function OrderDashboard() {
                                                                         </Button>
                                                                     </div>
                                                                 </td>
-                                                                <td
-                                                                    rowSpan={order.vendorAssignments.length}
-                                                                    className="border px-3 py-2 text-center"
-                                                                >
-                                                                    <HiOutlineArrowRight
-                                                                        className="cursor-pointer"
-                                                                        size={24}
-                                                                        onClick={() => router.push(`/order-dashboard/${order._id}`)}
-                                                                    />
-                                                                </td>
                                                             </>
                                                         )}
                                                     </tr>
@@ -871,13 +836,6 @@ export default function OrderDashboard() {
                                                             Generate Invoice
                                                         </Button>
                                                     </td>
-                                                    <td className="border px-3 py-2 text-center">
-                                                        <HiOutlineArrowRight
-                                                            className="cursor-pointer"
-                                                            size={24}
-                                                            onClick={() => router.push(`/order-dashboard/${order._id}`)}
-                                                        />
-                                                    </td>
                                                 </tr>
                                             );
                                         }
@@ -898,6 +856,7 @@ export default function OrderDashboard() {
                         role={specificVendorData?.role || "N/A"}
                     />
                 )}
+
             </div>
 
             {

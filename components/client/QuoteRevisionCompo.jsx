@@ -132,7 +132,7 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
     }));
   };
 
-
+  // handle save vendor changes 
 
   const handleSaveVendorChangesAtQuotes = async (versionIndex, itemIndex, vendorIdx) => {
 
@@ -202,14 +202,12 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
 
       }
 
-
       const result = await addNewVendorTOQuoteHandler(preparedData);
 
       // Dispatch the update with the new array
       dispatch(updateVendorDataAtQuotes(updatedData));
       setEditingVendorKey(null);
       toast.success("Vendor details updated successfully");
-
 
     }
     catch (error) {
@@ -242,6 +240,7 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
 
 
   const handleDeleteVendorAtQuotes = async (vendorId, itemIndex, versionIndex,vendorIdx) => {
+
     try {
 
       const vendor = data[versionIndex].items[itemIndex].vendors.find(v => v.vendorId === vendorId);
@@ -409,10 +408,6 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
     }
   };
 
-
-  console.log("edit vendor details at the quotes ", editVendorDataAtQuotes);
-
-
   return (
 
     <div className="w-screen max-w-[96%] overflow-x-scroll">
@@ -454,16 +449,8 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
                     const rowKey = `${quoteIdx}-${itemIdx}-${vendorIdx}`;
                     const isEditing = editingVendorKey === rowKey;
                     const isFirstVendorInFirstItem = isFirstItemInVersion && vendorIdx === 0;
-
-                    console.log("all vendors are : ", item.vendors);
-
                     let splitVendorList = item.vendors.slice(0, vendorIdx);
-
-                    console.log("splitted vendor list :", splitVendorList);
-
                     let isVendorExists = splitVendorList.find((ele) => ele.vendorId === vendor.vendorId);
-
-                    console.log("is vendor already exists : ", isVendorExists);
                     let filteredUniqueVendorArray = [];
                     let filteredUniqueVendorIdArray = [];
                     item.vendors.forEach((ele) => {
@@ -477,15 +464,9 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
 
                     })
 
-                    console.log("filtered unique vendor array : ", filteredUniqueVendorArray);
-
                     const totalAdvance = filteredUniqueVendorArray.reduce((acc, currentVal) => acc + currentVal.advance, 0);
 
                     const totalAmount = item.vendors.reduce((acc, currentVal) => acc + currentVal.costPerUnit * currentVal.quantity, 0);
-
-                    console.log("total advance : ", totalAdvance);
-
-                    console.log("total amount : ", totalAmount);
 
                     return (
                       <tr key={rowKey} className="border-b">
@@ -755,8 +736,6 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
                           )}
                         </td>
 
-
-
                         {/* delivery date  */}
 
                         <td className="border px-3 py-2 min-w-[150px]">
@@ -797,7 +776,6 @@ export default function QuoteRivisionComponent({ dummyData, client, setClient, e
                           )}
 
                         </td>
-
 
                         <td className="border px-3 py-2 flex gap-3">
                           {isEditing ? (

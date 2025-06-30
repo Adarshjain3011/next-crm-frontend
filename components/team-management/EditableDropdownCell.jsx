@@ -11,8 +11,6 @@ const EditableDropdownCell = ({ row, columnId, value, handleEdit }) => {
 
   const handleCommit = async (row, columnId, newRole) => {
 
-    console.log("row ,columnId,newRole : ", row.original._id, columnId, newRole);
-
     const prepareData = {
 
       role:newRole,

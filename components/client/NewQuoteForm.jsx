@@ -63,15 +63,11 @@ let type_of_item_changes = {
 }
 
 
+
+
 export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModal, addNewQuotation, client, queryClient }) {
 
     const [data, setData] = useState([]);
-
-
-    console.log("dummy data inside the addnewQuote Form ", dummyData);
-
-    // if it is a new quote then we have to show the new quote form
-
     const dispatch = useDispatch();
     const [isLoading, setIsLoading] = useState(false);
 
@@ -150,10 +146,6 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
 
                 // Append the stringified data payload
                 formData.append('data', JSON.stringify(dataPayload));
-
-                // for (let pair of formData.entries()) {
-                //     console.log(pair[0], pair[1]);
-                // }
 
                 // Call the addNewQuotation function with the formData
                 await addNewQuotation(formData);
@@ -299,17 +291,7 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
 
         try {
 
-            console.log("url is : ", url);
-
-            console.log("idx is : ", idx);
-
-            console.log("current version is : ", selectedVersion);
-
-            console.log("existing images : ", existingImages);
-
             const filteredData = dummyData.find((ele) => ele.version == selectedVersion);
-
-            console.log("filtered data is : ", filteredData);
 
             let prepareData = {
 
@@ -415,7 +397,6 @@ export default function AddNewQuoteForm({ dummyData = [], setAddNewQuoteFormModa
 
 
     useEffect(() => {
-        console.log("data is : ",data);
 
         // Map Excel data to form items if data is present
         if (data && Array.isArray(data) && data.length > 0) {

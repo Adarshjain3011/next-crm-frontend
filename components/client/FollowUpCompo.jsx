@@ -2,24 +2,14 @@
 'use client'
 
 import { addNewFollowUpHandler, updateFollowUpStatus } from "@/lib/api";
-import { useState, } from "react";
-
-import React from "react";
-
+import React, { useState, useRef } from "react";
 import AddNewFollowUp from "./AddNewFollowUp";
 import { Button } from "../ui/button";
-
-import { useRef } from "react";
-
 import toast from "react-hot-toast";
-
 import { respondToFollowUp } from "@/lib/api";
-
 import { followUpTableHeaders } from "@/lib/data";
-
 import { FaSave } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
-
 import { handleAxiosError } from "@/lib/handleAxiosError";
 
 export const FollowUpCompo = ({ client, setClient }) => {
@@ -27,9 +17,8 @@ export const FollowUpCompo = ({ client, setClient }) => {
     const [activeFollowUpId, setActiveFollowUpId] = useState(null);
     const [addNewFollowUpModal, setAddNewFollowUpModal] = useState(false);
 
-    // const [followUpStatusValue,setFollowUpStatusValue] = useState(clie);
-
     const followUpInputRef = useRef();
+
 
     const NewFollowUpAddHandler = async (data) => {
 
@@ -41,7 +30,7 @@ export const FollowUpCompo = ({ client, setClient }) => {
 
             const result = await addNewFollowUpHandler(data);
 
-            setClient({ ...client, followUps: [...client.followUps, data] });
+            setClient({ ...client, followUps: [...client.followUps, result] });
 
             setAddNewFollowUpModal(false);
 
@@ -50,22 +39,17 @@ export const FollowUpCompo = ({ client, setClient }) => {
 
         } catch (error) {
 
-            console.log("error is", error);
-
             handleAxiosError(error);
 
         }
 
     }
 
-
     // respond to the follow up handler 
 
     const respondToFollowUpHandler = async () => {
 
         try {
-
-            // message, respondedBy, enqueryId, followUpId
 
             let data = {};
 
@@ -109,17 +93,17 @@ export const FollowUpCompo = ({ client, setClient }) => {
         }
     }
 
+    // update followup response Handler
 
-
-    const updateFollowUpStatusHandler = async (event,followUpId) => {
+    const updateFollowUpStatusHandler = async (event, followUpId) => {
 
         try {
 
             const { value } = event.target;
 
-            if(value === ""){
+            if (value === "") {
 
-                return ;
+                return;
 
             }
 
@@ -132,10 +116,19 @@ export const FollowUpCompo = ({ client, setClient }) => {
 
             let result = await updateFollowUpStatus(data);
 
-            setClient(result);
+            let updatedData = client.followUps.map((item) => {
+                if (item._id === followUpId) {
+                    return {
+                        ...item,
+                        done: value
+                    };
+                }
+                return item;
+            });
+
+            setClient({ ...client, followUps: updatedData });
 
             toast.success("follow up status updated successfully");
-            
 
         } catch (error) {
 
@@ -146,7 +139,6 @@ export const FollowUpCompo = ({ client, setClient }) => {
         }
     }
 
-    // {followUp.done ? "Done" : "Pending"}
 
     return (
 
@@ -164,6 +156,7 @@ export const FollowUpCompo = ({ client, setClient }) => {
             <div className="mb-4">
                 <table className="min-w-full border mt-2 text-sm">
                     <thead className="bg-muted">
+
                         <tr>
                             {
 
@@ -174,6 +167,7 @@ export const FollowUpCompo = ({ client, setClient }) => {
                                 ))
                             }
                         </tr>
+
                     </thead>
                     <tbody>
                         {client &&
@@ -188,7 +182,7 @@ export const FollowUpCompo = ({ client, setClient }) => {
                                         <td className="border px-3 py-2">{followUp?.noteAddByUser?.name || "temp"}</td>
                                         <td className="border px-3 py-2">
 
-                                            <select value={followUp.done} className="px-4 py-2" onChange={(event) => updateFollowUpStatusHandler(event,followUp._id)}>
+                                            <select value={followUp.done} className="px-4 py-2" onChange={(event) => updateFollowUpStatusHandler(event, followUp._id)}>
 
                                                 <option value="">Select status</option>
                                                 <option value={true}>Done</option>
@@ -199,6 +193,7 @@ export const FollowUpCompo = ({ client, setClient }) => {
                                         </td>
 
                                         {/* Response area */}
+
                                         <td className="border px-3 py-2" colSpan={3}>
                                             {activeFollowUpId === followUp._id ? (
                                                 <div className="flex gap-3 items-center">
@@ -234,9 +229,11 @@ export const FollowUpCompo = ({ client, setClient }) => {
                                         </td>
 
                                         <td className="border px-3 py-2">{/* Actions if any */}</td>
+
                                     </tr>
 
                                     {/* Response Rows */}
+
                                     {followUp.responses?.map((resp, ridx) => (
                                         <tr key={`${followUp._id}-${ridx}`} className="border-b bg-gray-50">
                                             <td className="border px-3 py-1" colSpan={4}></td>
@@ -250,6 +247,7 @@ export const FollowUpCompo = ({ client, setClient }) => {
                                             <td className="border px-3 py-1"></td>
                                         </tr>
                                     ))}
+
                                 </React.Fragment>
                             ))}
                     </tbody>
@@ -268,7 +266,6 @@ export const FollowUpCompo = ({ client, setClient }) => {
                 ></AddNewFollowUp>
 
             }
-
 
         </div>
     )

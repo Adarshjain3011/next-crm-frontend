@@ -18,8 +18,6 @@ function ExcelReader({data,setData}) {
         range: 7,
       });
 
-      console.log("ALL ROWS:", allRows); // check what columns actually come
-
       const filtered = [];
 
       for (let row of allRows) {
