@@ -151,7 +151,7 @@ export default function ClientDashboardPage() {
     const dynamicHeadingNames = useMemo(() => {
         const headings = [...enqueryHeadingName];
         if (!isAdmin) {
-            headings.splice(8, 0, "AssignedBy");
+            headings.splice(9, 0, "AssignedBy");
         }
         return headings;
     }, [isAdmin]);
@@ -514,7 +514,7 @@ export default function ClientDashboardPage() {
                                                     </Badge>
                                                 </TableCell>
 
-                                                {isAdmin || user?._id === client.createdBy ? (
+                                                {isAdmin || user?._id === client.createdBy?._id ? (
                                                     <TableCell>
                                                         <MultiUserSelect
                                                             options={salesPersonData.map(m => ({ _id: m._id, name: m.name }))}

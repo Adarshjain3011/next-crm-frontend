@@ -85,7 +85,7 @@ export default function OrderDashboard() {
 
 
     function getVendorName(vendorId) {
-        // console.log("vendor data is ", membersData);
+
         const vendor = membersData.find((member) => member._id === vendorId);
         return vendor ? vendor.name : "Unknown Vendor";
     }
